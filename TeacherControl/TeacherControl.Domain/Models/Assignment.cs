@@ -13,23 +13,20 @@ namespace TeacherControl.Domain.Models
         public DateTime EndDate { get; set; }
         public string Body { get; set; }
         public double Points { get; set; }
-        public int UpvotesCount { get; set; }
-        public int ViewsCount { get; set; }
 
         // relationships
         public int StatusId { get; set; }
-        public virtual Status Status { get; set; }
-        public virtual IEnumerable<AssignmentTag> Tags { get; set; }
-        public virtual IEnumerable<AssignmentType> Types { get; set; }
-        public virtual IEnumerable<AssignmentGroup> Groups { get; set; }
-        public virtual IEnumerable<AssignmentComment> Comments { get; set; }
-        public virtual IEnumerable<AssignmentCarousel> Carousels { get; set; }
-        public virtual IEnumerable<Questionnaire> Questionnaires { get; set; }
+        public Status Status { get; set; }
+        public AssignmentCounts Counts{ get; set; }
+        public virtual ICollection<AssignmentTag> Tags { get; set; }
+        public virtual ICollection<AssignmentGroup> Groups { get; set; }
+        public virtual ICollection<AssignmentComment> Comments { get; set; }
+        public virtual ICollection<AssignmentCarousel> Carousels { get; set; }
+        public virtual ICollection<Questionnaire> Questionnaires { get; set; }
 
         public Assignment()
         {
             Tags = new HashSet<AssignmentTag>();
-            Types = new HashSet<AssignmentType>();
             Groups = new HashSet<AssignmentGroup>();
             Questionnaires = new HashSet<Questionnaire>();
             Carousels = new HashSet<AssignmentCarousel>();

@@ -26,7 +26,7 @@ namespace TeacherControl.DataEFCore.ValidationRules
             model.Property(b => b.Id).ValueGeneratedOnAdd();
 
             model.Property(b => b.CreatedBy).IsRequired().HasMaxLength(50);
-            model.Property(b => b.UpdatedBy).IsRequired().HasMaxLength(50);
+            model.Property(b => b.UpdatedBy).IsRequired().HasMaxLength(50).HasDefaultValue(string.Empty);
             model.Property(b => b.CreatedDate).IsRequired().HasValueGenerator<OnCreateOrUpdateDatetimeGenerator>().ValueGeneratedOnAdd();
             model.Property(b => b.UpdatedDate).IsRequired().HasValueGenerator<OnCreateOrUpdateDatetimeGenerator>().ValueGeneratedOnUpdate();
         }

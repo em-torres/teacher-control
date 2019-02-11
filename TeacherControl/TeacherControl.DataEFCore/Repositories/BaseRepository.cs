@@ -19,11 +19,17 @@ namespace TeacherControl.DataEFCore.Repositories
             _Context = Context;
             _Mapper = Mapper;
         }
-        
+
+        public void Dispose()
+        {
+            _Context.Dispose();  //TBD
+        }
+
         #region Repo CRUD
-        public void Add(TEntity T)
+        public int Add(TEntity T)
         {
             _Context.Set<TEntity>().Add(T);
+            return _Context.SaveChanges();
         }
 
         public TEntity Find(Expression<Func<TEntity, bool>> predicate)
@@ -66,27 +72,26 @@ namespace TeacherControl.DataEFCore.Repositories
             return Task.Factory.StartNew(() => query);
         }
 
-        public void Remove(TEntity T)
+        public int Remove(TEntity T)
         {
             _Context.Set<TEntity>().Remove(T);
+            return _Context.SaveChanges();
         }
 
-        public void RemoveRange(IEnumerable<TEntity> entities)
+        public int RemoveRange(IEnumerable<TEntity> entities)
         {
             _Context.Set<TEntity>().RemoveRange(entities);
+            return _Context.SaveChanges();
         }
 
-        public void Update(Expression<Func<TEntity, bool>> predicate, object properties)
+        public int Update(Expression<Func<TEntity, bool>> predicate, object properties)
         {
-            var oldEntity = _Context.Set<TEntity>()
-                .Where(predicate)
-                .First();
+            var oldEntity = _Context.Set<TEntity>().Where(predicate).First();
+            if (properties != null) _Context.Entry(oldEntity).CurrentValues.SetValues(properties);
 
-            if (properties != null)
-            {
-                _Context.Entry(oldEntity).CurrentValues.SetValues(properties);
-            }
+            return _Context.SaveChanges();
         }
+
         #endregion
     }
 }

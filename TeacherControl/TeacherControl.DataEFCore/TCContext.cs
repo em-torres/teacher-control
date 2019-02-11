@@ -1,35 +1,32 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TeacherControl.DataEFCore.ValidationRules;
 using TeacherControl.Domain.Models;
-//using TeacherControl.Infrastructure.ModelValidationRules;
-using TeacherControl.Infrastructure.Seeds;
+using TeacherControl.Domain.Seeds;
 
 namespace TeacherControl.DataEFCore
 {
     public class TCContext : DbContext
     {
-
-        private readonly DbContextOptions<TCContext> _Options;
+        public virtual DbContextOptions<TCContext> _Options { get; set; }
 
         #region DbSets
-        public readonly DbSet<Assignment> Assignments;
-        public readonly DbSet<AssignmentTag> AssignmentTag;
-        public readonly DbSet<AssignmentType> AssignmentType;
-        public readonly DbSet<AssignmentComment> AssignmentComment;
-        public readonly DbSet<AssignmentGroup> AssignmentGroup;
-        public readonly DbSet<AssignmentCarousel> AssignmentCarousel;
-        public readonly DbSet<Questionnaire> Questionnaire;
-        public readonly DbSet<QuestionnaireSection> QuestionnaireSection;
-        public readonly DbSet<Question> Question;
-        public readonly DbSet<QuestionAnswer> QuestionAnswer;
-        public readonly DbSet<Course> Course;
-        public readonly DbSet<CourseTag> CourseTag;
-        public readonly DbSet<CourseType> CourseType;
-        public readonly DbSet<CourseUserCredit> CourseUserCredit;
-        public readonly DbSet<Group> Group;
-        public readonly DbSet<Status> Status;
-        public readonly DbSet<User> User;
-        public readonly DbSet<Comment> Comment;
+        public virtual DbSet<Assignment> Assignments { get; set; }
+        public virtual DbSet<AssignmentTag> AssignmentTags { get; set; }
+        public virtual DbSet<AssignmentComment> AssignmentComments { get; set; }
+        public virtual DbSet<AssignmentGroup> AssignmentGroups { get; set; }
+        public virtual DbSet<AssignmentCarousel> AssignmentCarousels { get; set; }
+        public virtual DbSet<Questionnaire> Questionnaires { get; set; }
+        public virtual DbSet<QuestionnaireSection> QuestionnaireSections { get; set; }
+        public virtual DbSet<Question> Questions { get; set; }
+        public virtual DbSet<QuestionAnswer> QuestionAnswers { get; set; }
+        public virtual DbSet<Course> Courses { get; set; }
+        public virtual DbSet<CourseTag> CourseTags { get; set; }
+        public virtual DbSet<CourseType> CourseTypes { get; set; }
+        public virtual DbSet<CourseUserCredit> CourseUserCredits { get; set; }
+        public virtual DbSet<Group> Groups { get; set; }
+        public virtual DbSet<Status> Statuses { get; set; }
+        public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<Comment> Comments { get; set; }
         #endregion
 
         public TCContext(DbContextOptions<TCContext> options) : base(options)
@@ -37,23 +34,13 @@ namespace TeacherControl.DataEFCore
             _Options = options;
         }
 
-        public TCContext()
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseLazyLoadingProxies();
+            }
         }
-
-        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //{
-        //    if (!optionsBuilder.IsConfigured)
-        //    {
-        //        IConfigurationRoot configuration = new ConfigurationBuilder()
-        //           .SetBasePath(Directory.GetCurrentDirectory())
-        //           .AddJsonFile("appsettings.json")
-        //           .Build();
-        //        optionsBuilder.UseLazyLoadingProxies();
-        //        optionsBuilder.UseSqlServer(configuration["ConnectionStrings:TeacherControlDb"]);
-        //    }
-        //}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

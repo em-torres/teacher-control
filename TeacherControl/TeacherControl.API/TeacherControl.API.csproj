@@ -10,13 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Validations\**" />
-    <Content Remove="Validations\**" />
-    <EmbeddedResource Remove="Validations\**" />
-    <None Remove="Validations\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Remove="Controllers\CoursesController.cs" />
     <Compile Remove="Controllers\GroupsController.cs" />
     <Compile Remove="Controllers\QuestionnairesController.cs" />

@@ -2,12 +2,17 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TeacherControl.Domain.DTOs;
+using TeacherControl.Domain.Models;
 using TeacherControl.Domain.QueryFilters;
 
 namespace TeacherControl.Domain.Repositories
 {
-    public interface IAssignmentRepository : IRepository<AssignmentDTO>
+    public interface IAssignmentRepository : IRepository<Assignment>
     {
+        int Add(AssignmentDTO dto, string createBy, string updatedBy = "");
+        int UpdateById(int ID);
+        int UpdateByTokenId(string tokenID);
+
         void DeleteTags(AssignmentDTO AssignmentDTO);
         void DeleteGroups(AssignmentDTO AssignmentDTO);
         void DeleteTypes(AssignmentDTO AssignmentDTO);
@@ -24,5 +29,7 @@ namespace TeacherControl.Domain.Repositories
         IEnumerable<AssignmentDTO> GetByGroups(IEnumerable<string> groups);
         IEnumerable<AssignmentDTO> GetByTypes(IEnumerable<string> types);
         IEnumerable<AssignmentDTO> GetByTags(IEnumerable<string> tags);
+
+
     }
 }

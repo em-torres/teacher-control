@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using AutoMapper;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -26,19 +23,19 @@ namespace TeacherControl.API
 
             //services.AddResponseCaching();
 
+            //TODO: loging svc log4net
+            services
+                .AddAutoMapperConfiguration()
+                .AddConnectionProvider(Configuration)
+                .ConfigureRepositories()
+                .AddPluralizationService()
+                .AddMiddlewares()
+                .AddCorsConfiguration();
+
             services
                 .AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
                 .AddFluentValidationConfiguration();
-
-            //TODO: loging svc log4net
-            services
-                .AddAutoMapper()
-                .AddConnectionProvider(Configuration)
-                .ConfigureRepositories()
-                .AddMiddlewares()
-                .AddCorsConfiguration();
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

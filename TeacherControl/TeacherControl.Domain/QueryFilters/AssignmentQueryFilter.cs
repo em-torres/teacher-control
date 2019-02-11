@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using TeacherControl.Common.Enums;
 
 namespace TeacherControl.Domain.QueryFilters
 {
@@ -15,5 +16,6 @@ namespace TeacherControl.Domain.QueryFilters
         public string Types { get; set; }
         public string Tags { get; set; }
         public float Points { get; set; }
+        public Status Status { get; set; }
     }
 }

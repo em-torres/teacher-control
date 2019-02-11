@@ -15,5 +15,6 @@ namespace TeacherControl.DataEFCore.Repositories
         {
 
         }
+
     }
 }

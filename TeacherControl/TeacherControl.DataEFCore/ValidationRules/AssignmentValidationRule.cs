@@ -26,28 +26,12 @@ namespace TeacherControl.DataEFCore.ValidationRules
             model.Property(b => b.EndDate).IsRequired();
             model.Property(b => b.Body).IsRequired();
             model.Property(b => b.Points).IsRequired();
-            model.Property(b => b.UpvotesCount).IsRequired();
-            model.Property(b => b.ViewsCount).IsRequired();
 
             model.HasIndex(b => b.Title).IsUnique();
             model.HasIndex(b => b.HashIndex).IsUnique();
 
             //relations
-            model.Ignore(b => b.Status);
-        }
-
-        private void BuildAssignmentTypeDbTable(EntityTypeBuilder<AssignmentType> model)
-        {
-
-            model.HasKey(b => b.Id);
-            model.Property(b => b.Name).IsRequired().HasMaxLength(30);
-            model.Property(b => b.Description).HasMaxLength(300);
-
-            model
-                .HasOne(b => b.Assignment)
-                .WithMany(b => b.Types)
-                .HasForeignKey(b=> b.AssignmentId)
-                .OnDelete(DeleteBehavior.Cascade);
+            //model.Ignore(b => b.Status);
         }
 
         private void BuildAssignmentTagDbTable(EntityTypeBuilder<AssignmentTag> model)
@@ -93,11 +77,19 @@ namespace TeacherControl.DataEFCore.ValidationRules
             modelBuilder.Entity<AssignmentComment>().HasOne(i => i.Assignment).WithMany(i => i.Comments);
         }
 
+        public void BuildAssignmentCOuntsDbTable(EntityTypeBuilder<AssignmentCounts> model)
+        {
+            model.HasKey(b => b.Id);
+            model.Property(b => b.UpvotesCount).IsRequired().HasDefaultValue(0);
+            model.Property(b => b.ViewsCount).IsRequired().HasDefaultValue(0);
+
+            model.HasOne(b => b.Assignment);
+        }
+
         public override void Build()
         {
             BuildAssignmentDbTable(_ModelBuilder.Entity<Assignment>());
             BuildAssignmentTagDbTable(_ModelBuilder.Entity<AssignmentTag>());
-            BuildAssignmentTypeDbTable(_ModelBuilder.Entity<AssignmentType>());
             BuildAssignmentCarouselDbTable(_ModelBuilder.Entity<AssignmentCarousel>());
 
             BuildAssignmentGroupDbTable(_ModelBuilder);

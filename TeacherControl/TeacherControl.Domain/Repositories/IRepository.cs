@@ -7,12 +7,12 @@ using TeacherControl.Domain.Models;
 
 namespace TeacherControl.Domain.Repositories
 {
-    public interface IRepository<TEntity> where TEntity : class
+    public interface IRepository<TEntity> : IDisposable where TEntity : class
     {
-        void Remove(TEntity T);
-        void RemoveRange(IEnumerable<TEntity> entities);
-        void Add(TEntity T);
-        void Update(Expression<Func<TEntity, bool>> predicate, object properties);
+        int Remove(TEntity T);
+        int RemoveRange(IEnumerable<TEntity> entities);
+        int Add(TEntity T);
+        int Update(Expression<Func<TEntity, bool>> predicate, object properties);
         TEntity Find(Expression<Func<TEntity, bool>> predicate);
 
         IQueryable<TEntity> GetAll();

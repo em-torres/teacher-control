@@ -1,5 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using System.Reflection;
+using TeacherControl.DataEFCore;
 using TeacherControl.DataEFCore.Repositories;
 using TeacherControl.Domain.Repositories;
 
@@ -43,6 +47,21 @@ namespace TeacherControl.API.Configurations
 
             return services;
         }
-        
+
+        public static IServiceCollection AddPluralizationService(this IServiceCollection services)
+        {
+            services.AddSingleton<IPluralizer, DbTablePluralizer>();
+
+            return services;
+        }
+
+        public static IServiceCollection AddAutoMapperConfiguration(this IServiceCollection services)
+        {
+            services.AddAutoMapper(cfg => cfg.AddProfiles("TeacherControl.Domain"));
+
+            return services;
+        }
+
+
     }
 }

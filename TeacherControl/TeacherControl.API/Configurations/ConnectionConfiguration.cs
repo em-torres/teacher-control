@@ -15,12 +15,12 @@ namespace TeacherControl.API.Configurations
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 connection = configuration.GetConnectionString("TeacherControlDbWindows") ??
-                                 "<SQL_SERVER_CONNECTION_STRING_HERE>";
+                                 "<FALLBACK_SQL_SERVER_CONNECTION_STRING_HERE>";
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 connection = configuration.GetConnectionString("TeacherControlDbDocker") ??
-                                 "<DOCKER_SQL_SERVER_CONNECTION_STRING_HERE>";
+                                 "<FALLBACK_DOCKER_SQL_SERVER_CONNECTION_STRING_HERE>";
             }
 
             services.AddDbContextPool<TCContext>(options => options.UseSqlServer(connection));
