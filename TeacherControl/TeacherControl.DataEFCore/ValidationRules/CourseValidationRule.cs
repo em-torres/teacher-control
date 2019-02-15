@@ -27,16 +27,7 @@ namespace TeacherControl.DataEFCore.ValidationRules
 
             //relations
             model.HasMany(b => b.Tags);
-            model.HasMany(b => b.Types);
             model.HasOne(b => b.Professor);
-        }
-
-        private void BuildCourseTypeDbTable(EntityTypeBuilder<CourseType> model)
-        {
-            BuildBaseModelDbTable(model);
-
-            model.Property(b => b.Name).IsRequired().HasMaxLength(60);
-            model.Property(b => b.Description).IsRequired().HasMaxLength(300);
         }
 
         private void BuildCourseTagDbTable(EntityTypeBuilder<CourseTag> model)
@@ -59,7 +50,6 @@ namespace TeacherControl.DataEFCore.ValidationRules
         {
             BuildCourseDbTable(_ModelBuilder.Entity<Course>());
             BuildCourseTagDbTable(_ModelBuilder.Entity<CourseTag>());
-            BuildCourseTypeDbTable(_ModelBuilder.Entity<CourseType>());
             BuildCourseUserCreditDbTable(_ModelBuilder.Entity<CourseUserCredit>());
         }
     }

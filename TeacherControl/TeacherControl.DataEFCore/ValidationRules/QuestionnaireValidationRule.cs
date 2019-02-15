@@ -18,8 +18,10 @@ namespace TeacherControl.DataEFCore.ValidationRules
         {
             BuildQuestionDbTable(_ModelBuilder.Entity<Question>());
             BuildQuestionnaireDbTable(_ModelBuilder.Entity<Questionnaire>());
-            BuildQuestionnaireSectionDbTable(_ModelBuilder.Entity<QuestionnaireSection>());
             BuildQuestionAnswerDbTable(_ModelBuilder.Entity<QuestionAnswer>());
+            BuildQuestionAnswerMatchDbTable(_ModelBuilder.Entity<QuestionAnswerMatch>());
+            BuildQuestionAnswerUserMatchDbTable(_ModelBuilder.Entity<QuestionAnswerUserMatch>());
+            BuildQuestionAnswerUserDbTable(_ModelBuilder.Entity<QuestionAnswerUser>());
         }
 
         private void BuildQuestionnaireDbTable(EntityTypeBuilder<Questionnaire> model)
@@ -30,22 +32,13 @@ namespace TeacherControl.DataEFCore.ValidationRules
             model.Property(b => b.Body).IsRequired().HasMaxLength(600);
 
             //relations
-            model.Ignore(b => b.Status);
-            model.Ignore(b => b.Assignment);
-            model.HasOne(b => b.Assignment).WithMany(b => b.Questionnaires).HasForeignKey(b => b.AssignmentId);
+            model.HasMany(b => b.Questions);
+            model.HasOne(b => b.Assignment)
+                .WithMany(b => b.Questionnaires)
+                .HasForeignKey(b => b.AssignmentId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
-
-        private void BuildQuestionnaireSectionDbTable(EntityTypeBuilder<QuestionnaireSection> model)
-        {
-            model.HasKey(b => b.Id);
-            model.Property(b => b.Id).ValueGeneratedOnAdd();
-            model.Property(b => b.Page).IsRequired();
-
-            //relations
-            model.Ignore(b => b.Questionnaire);
-            model.HasOne(b => b.Questionnaire).WithMany(b => b.Sections).HasForeignKey(b => b.QuestionnaireId);
-        }
-
+        
         private void BuildQuestionDbTable(EntityTypeBuilder<Question> model)
         {
             model.HasKey(b => b.Id);
@@ -55,9 +48,6 @@ namespace TeacherControl.DataEFCore.ValidationRules
             model.Property(b => b.Points).IsRequired();
             model.Property(b => b.IsRequired).IsRequired();
 
-            //relations
-            model.Ignore(b => b.QuestionnaireSection);
-            model.HasOne(b => b.QuestionnaireSection).WithMany(b => b.Questions).HasForeignKey(b => b.QuestionnaireSectionId);
         }
 
         private void BuildQuestionAnswerDbTable(EntityTypeBuilder<QuestionAnswer> model)
@@ -65,13 +55,42 @@ namespace TeacherControl.DataEFCore.ValidationRules
             model.HasKey(b => b.Id);
             model.Property(b => b.Id).ValueGeneratedOnAdd();
 
-            model.Property(b => b.Title).IsRequired();
+            model.Property(b => b.Answer).IsRequired();
             model.Property(b => b.IsCorrect).IsRequired();
-            model.Property(b => b.MaxLength).IsRequired();
 
             //relations
-            model.Ignore(b => b.Question);
             model.HasOne(b => b.Question).WithMany(b => b.Answers).HasForeignKey(b => b.QuestionId);
+        }
+
+        private void BuildQuestionAnswerMatchDbTable(EntityTypeBuilder<QuestionAnswerMatch> model)
+        {
+            model.HasKey(b => b.Id);
+            model.Property(b => b.Id).ValueGeneratedOnAdd();
+
+            model.HasOne(b => b.LeftQuestionAnswer);
+            model.HasOne(b => b.RightQuestionAnswer);
+
+        }
+
+        private void BuildQuestionAnswerUserMatchDbTable(EntityTypeBuilder<QuestionAnswerUserMatch> model)
+        {
+            model.HasKey(b => b.Id);
+            model.Property(b => b.Id).ValueGeneratedOnAdd();
+
+            model.HasOne(b => b.LeftQuestionAnswer);
+            model.HasOne(b => b.RightQuestionAnswer);
+            model.HasOne(b => b.User);
+
+        }
+
+        private void BuildQuestionAnswerUserDbTable(EntityTypeBuilder<QuestionAnswerUser> model)
+        {
+            model.HasKey(b => b.Id);
+            model.Property(b => b.Id).ValueGeneratedOnAdd();
+
+            model.HasOne(b => b.QuestionAnswer);
+            model.HasOne(b => b.User);
+
         }
     }
 }

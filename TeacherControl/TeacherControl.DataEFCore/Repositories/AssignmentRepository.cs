@@ -1,14 +1,13 @@
-﻿using System;
+﻿using AutoMapper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using TeacherControl.Domain.Repositories;
-using TeacherControl.Domain.Models;
-using TeacherControl.Domain.DTOs;
-using TeacherControl.Domain.QueryFilters;
-using AutoMapper;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Collections;
+using TeacherControl.Domain.DTOs;
+using TeacherControl.Domain.Models;
+using TeacherControl.Domain.Queries;
+using TeacherControl.Domain.Repositories;
 
 namespace TeacherControl.DataEFCore.Repositories
 {
@@ -17,30 +16,6 @@ namespace TeacherControl.DataEFCore.Repositories
 
         public AssignmentRepository(TCContext Context, IMapper Mapper) : base(Context, Mapper)
         {
-        }
-
-        public void DeleteDependecies(AssignmentDTO assignment)
-        {
-            //DeleteTags(assignment);
-            //DeleteTypes(assignment);
-            //DeleteGroups(assignment);
-
-            //TODO: should be by the ef service
-        }
-
-        public void DeleteTags(AssignmentDTO Assignment)
-        {
-            //_Context.Set<AssignmentTag>().RemoveRange(Assignment.Tags);
-        }
-
-        public void DeleteGroups(AssignmentDTO Assignment)
-        {
-            //_Context.Set<AssignmentGroup>().RemoveRange(Assignment.Groups);
-        }
-
-        public void DeleteTypes(AssignmentDTO Assignment)
-        {
-            //_Context.Set<AssignmentType>().RemoveRange(Assignment.Types);
         }
 
         public IEnumerable<AssignmentDTO> GetByTitle(string title)
@@ -66,7 +41,7 @@ namespace TeacherControl.DataEFCore.Repositories
             return _Mapper.Map<IEnumerable<Assignment>, IEnumerable<AssignmentDTO>>(assignments);
         }
 
-        public Task<IEnumerable<AssignmentDTO>> GetAllByFilters(AssignmentQueryFilter filters)
+        public Task<IEnumerable<AssignmentDTO>> GetByFilters(AssignmentQuery filters)
         {
             IQueryable<Assignment> assignments = null;
             Match titleIndex = new Regex(@"[a-f0-9]{12}$").Match(filters.Title);
@@ -92,75 +67,35 @@ namespace TeacherControl.DataEFCore.Repositories
             if (filters.StartPoints >= 0 && filters.EndPoints <= 0)
                 assignments = _Context.Assignments.Where(a => a.Points >= filters.StartPoints && a.Points <= filters.EndPoints);
 
-            //if (filters.Tags.Count() > 0)
-            //{
-            //    IEnumerable<string> tags = filters.Tags.Split(",");
-            //    assignments = _Context.Assignments.Where(a => a.Tags.Select(t => t.Name).SequenceEqual(tags));
-            //}
+            if (filters.Tags.Count() > 0)
+            {
+                IEnumerable<string> tags = filters.Tags.Split(",");
+                assignments = _Context.Assignments.Where(a => a.Tags.Select(t => t.Name).SequenceEqual(tags));
+            }
 
-            //if (filters.Groups.Count() > 0)
-            //{
-            //    IEnumerable<string> groups = filters.Tags.Split(",");
-            //    assignments = _Context.Assignments.Where(a => a.Groups.Select(t => t.Group.Name).SequenceEqual(groups));
-            //}
-
-            //if (filters.Types.Count() > 0)
-            //{
-            //    IEnumerable<string> types = filters.Tags.Split(",");
-            //    assignments = _Context.Assignments.Where(a => a.Types.Select(t => t.Name).SequenceEqual(types));
-            //}
+            if (filters.Groups.Count() > 0)
+            {
+                IEnumerable<string> groups = filters.Tags.Split(",");
+                assignments = _Context.Assignments.Where(a => a.Groups.Select(t => t.Group.Name).SequenceEqual(groups));
+            }
 
             if (filters.Status > 0)
+            {
                 assignments = assignments.Where(a => a.Status.Equals(filters.Status));
+            }
 
-            //MISSING_PAGINATION
+            if (filters.Page >= 0 && filters.PageSize >= 0)
+            {
+                assignments = assignments.Skip(filters.Page * filters.PageSize).Take(filters.PageSize);
+            }
+
             return Task.Run(() => _Mapper.Map<Assignment[], IEnumerable<AssignmentDTO>>(assignments.ToArray()));
         }
 
-        public IEnumerable<AssignmentDTO> GetFromStartDate(DateTime startDate)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<AssignmentDTO> GetFromEndDate(DateTime endDate)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<AssignmentDTO> GetFromStartPoints(float startPoints)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<AssignmentDTO> GetFromEndPoints(float endPoints)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<AssignmentDTO> GetByExactPoints(float points)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<AssignmentDTO> GetByGroups(IEnumerable<string> groups)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<AssignmentDTO> GetByTypes(IEnumerable<string> types)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<AssignmentDTO> GetByTags(IEnumerable<string> tags)
-        {
-            throw new NotImplementedException();
-        }
-
-        public int Add(AssignmentDTO dto, string createBy, string updatedBy = "")
+        public int Add(AssignmentDTO dto, string createBy)
         {
             Assignment model = _Mapper.Map<AssignmentDTO, Assignment>(dto);
-            int statusID = (int)Common.Enums.Status.Active;
+            int statusID = (int)Domain.Enums.Status.Active;
 
             IEnumerable<string> tags = dto.Tags.Select(t => t.ToLower());
             model.Tags = tags.Select(t => new AssignmentTag { Name = t }).ToList();
@@ -175,29 +110,100 @@ namespace TeacherControl.DataEFCore.Repositories
                 return new AssignmentGroup { Group = finds.First() };
             }).ToList();
 
-            model.Status = _Context.Statuses.Find((int)Common.Enums.Status.Active);
+            model.Status = _Context.Statuses.Find((int)Domain.Enums.Status.Active);
             model.CreatedBy = createBy;
-            model.UpdatedBy = updatedBy;
+            model.UpdatedDate = DateTime.UtcNow;
 
-            model.Counts = new AssignmentCounts {  UpvotesCount = 0, ViewsCount = 0};
+            model.Counts = new AssignmentCounts { UpvotesCount = 0, ViewsCount = 0 };
 
             return Add(model);
         }
 
-        public int UpdateById(int ID)
+        public int DeleteById(int ID, string updatedBy)
         {
             Assignment assignment = _Context.Assignments.Where(i => i.Id.Equals(ID)).First();
 
-            assignment.Status = _Context.Statuses.Where(i => i.Id.Equals(Common.Enums.Status.InActive)).First();
-            
+            assignment.Status = _Context.Statuses.Where(i => i.Id.Equals(Domain.Enums.Status.InActive)).First();
+
+            assignment.UpdatedBy = updatedBy;
+            assignment.UpdatedDate = DateTime.UtcNow;
+
             return _Context.SaveChanges();
         }
 
-        public int UpdateByTokenId(string tokenID)
+        public int DeleteByTokenId(string tokenID, string updatedBy)
         {
             Assignment assignment = _Context.Assignments.Where(i => i.HashIndex.Equals(tokenID)).First();
-            int InActiveID = (int) Common.Enums.Status.InActive;
+            int InActiveID = (int)Domain.Enums.Status.InActive;
             assignment.Status = _Context.Statuses.Where(i => i.Id.Equals(InActiveID)).First();
+
+            assignment.UpdatedBy = updatedBy;
+            assignment.UpdatedDate = DateTime.UtcNow;
+
+            return _Context.SaveChanges();
+        }
+
+        public int Update(int id, AssignmentDTO dto, string updateBy)
+        {
+            Assignment old = _Context.Assignments.Where(i => i.Id.Equals(id)).First();
+            Assignment newModel = _Mapper.Map<AssignmentDTO, Assignment>(dto);
+            Status status = _Context.Statuses.Where(i => i.Id.Equals(dto.Status)).First();
+
+            newModel.UpdatedDate = DateTime.UtcNow;
+
+            newModel.UpdatedBy = updateBy;
+            newModel.UpdatedDate = DateTime.UtcNow;
+
+            Update(i => i.Id.Equals(id), newModel);
+
+            return _Context.SaveChanges();
+        }
+
+        public int UpdateTags(int id, IEnumerable<string> tags, string updateBy)
+        {
+            Assignment assignment = _Context.Assignments.Where(i => i.Equals(id)).First();
+
+            tags.ToList().ForEach(i =>
+            {
+                if (assignment.Tags.Any(t => t.Name.ToLower().Equals(i.ToLower())))
+                    assignment.Tags.Add(new AssignmentTag { Name = i });
+            });
+
+            assignment.UpdatedBy = updateBy;
+            assignment.UpdatedDate = DateTime.UtcNow;
+
+            return _Context.SaveChanges();
+        }
+
+        public int UpdateGroups(int id, IEnumerable<string> groups, string updateBy)
+        {
+            Assignment assignment = _Context.Assignments.Where(i => i.Equals(id)).First();
+
+            groups.ToList().ForEach(i =>
+            {
+                Domain.Models.Group group = _Context.Groups.Where(g => g.Name.ToLower().Equals(i.ToLower())).First();
+                if (assignment.Groups.Any(t => t.Group.Name.ToLower().Equals(i.ToLower())))
+                    assignment.Groups.Add(new AssignmentGroup { Group = group });
+            });
+
+            assignment.UpdatedBy = updateBy;
+            assignment.UpdatedDate = DateTime.UtcNow;
+
+            return _Context.SaveChanges();
+        }
+
+        public int UpdateUpvoteCount(int id, int value)
+        {
+            Assignment assignment = _Context.Assignments.Where(i => i.Equals(id)).First();
+            assignment.Counts.UpvotesCount = assignment.Counts.UpvotesCount + value;
+
+            return _Context.SaveChanges();
+        }
+
+        public int UpdateViewsCount(int id, int value)
+        {
+            Assignment assignment = _Context.Assignments.Where(i => i.Equals(id)).First();
+            assignment.Counts.ViewsCount = assignment.Counts.ViewsCount + value;
 
             return _Context.SaveChanges();
         }

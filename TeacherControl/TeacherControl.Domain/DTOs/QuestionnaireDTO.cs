@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TeacherControl.Domain.Enums;
 
 namespace TeacherControl.Domain.DTOs
 {
@@ -9,8 +10,10 @@ namespace TeacherControl.Domain.DTOs
     {
         public string Title { get; set; }
         public string Body { get; set; }
-        public int Status { get; set; }
+        public float PointsToPass { get; set; }
+        public Status Status { get; set; }
 
-        public IEnumerable<QuestionnaireDTO> Sections { get; set; }
+        public IEnumerable<QuestionDTO> Questions { get; set; }
+
     }
 }

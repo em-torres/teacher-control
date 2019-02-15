@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace TeacherControl.Common.Extensors
 {
@@ -23,5 +21,6 @@ namespace TeacherControl.Common.Extensors
             if (DateTime.TryParse(date, out DateTime result)) return result;
             return DateTime.MinValue;
         }
+
     }
 }

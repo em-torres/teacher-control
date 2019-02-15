@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using System.Reflection;
+using Newtonsoft.Json.Serialization;
 using TeacherControl.DataEFCore;
 using TeacherControl.DataEFCore.Repositories;
 using TeacherControl.Domain.Repositories;
@@ -16,9 +16,7 @@ namespace TeacherControl.API.Configurations
             services
                 .AddScoped<IAssignmentRepository, AssignmentRepository>()
                 .AddScoped<ICourseRepository, CourseRepository>()
-                .AddScoped<IGroupRepository, GroupRepository>()
-                .AddScoped<IStatusRepository, StatusRepository>()
-                .AddScoped<IUserRepository, UserRepository>();
+                .AddScoped<IQuestionnaireRepository, QuestionnaireRepository>();
 
             return services;
         }
@@ -28,6 +26,10 @@ namespace TeacherControl.API.Configurations
             services.AddMvc().AddJsonOptions(options =>
             {
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                options.SerializerSettings.ContractResolver = new DefaultContractResolver
+                {
+                    NamingStrategy = new SnakeCaseNamingStrategy()
+                };
             });
 
             return services;

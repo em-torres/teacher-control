@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using TeacherControl.Domain.Queries;
 using TeacherControl.Domain.Repositories;
 
 namespace TeacherControl.DataEFCore.Repositories
@@ -37,7 +38,7 @@ namespace TeacherControl.DataEFCore.Repositories
             return _Context
                 .Set<TEntity>()
                 .Where(predicate)
-                .FirstOrDefault();
+                .First();
         }
 
         public Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> predicate)
@@ -45,7 +46,7 @@ namespace TeacherControl.DataEFCore.Repositories
             return _Context
                 .Set<TEntity>()
                 .Where(predicate)
-                .FirstOrDefaultAsync();
+                .FirstAsync();
         }
 
         public IQueryable<TEntity> GetAll(Expression<Func<TEntity, bool>> predicate)
@@ -93,5 +94,13 @@ namespace TeacherControl.DataEFCore.Repositories
         }
 
         #endregion
+
+        public IQueryable<TEntity> GetEntityPaginated(BaseQuery baseDto, IQueryable<TEntity> entities)
+        {
+            int pageSize = baseDto.PageSize > 0 ? baseDto.PageSize : 50; //by default the size is 50
+            int skip = baseDto.Page > 0 ? baseDto.Page : 0;
+
+            return entities.Skip(pageSize * skip).Take(pageSize > 0 ? pageSize : 50);
+        }
     }
 }

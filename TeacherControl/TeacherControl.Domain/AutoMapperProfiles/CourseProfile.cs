@@ -15,13 +15,11 @@ namespace TeacherControl.Domain.AutoMapperProfiles
             CreateMap<Course, CourseDTO>()
                 .ForMember(i => i.Status, i => i.MapFrom(src => src.Status.Id))
                 .ForMember(i => i.Tags, i => i.MapFrom(src => src.Tags.Select(t => t.Name)))
-                .ForMember(i => i.Types, i => i.MapFrom(src => src.Types.Select(t => t.Name)))
                 .ForMember(i => i.Professor, i => i.MapFrom(src => src.Professor.Id));
 
             CreateMap<CourseDTO, Course>()
                 .ForPath(i => i.Status.Id, i => i.MapFrom(src => src.Status))
                 .ForMember(i => i.Tags, i => i.Ignore())
-                .ForMember(i => i.Types, i => i.Ignore())
                 .ForPath(i => i.Professor.Id, i => i.MapFrom(m => m.Professor));
         }
     }

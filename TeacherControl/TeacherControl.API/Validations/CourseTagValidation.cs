@@ -6,7 +6,7 @@ namespace TeacherControl.API.Validations
     {
         public CourseTagValidation()
         {
-            RuleFor(m => m).NotEmpty().MinimumLength(5).MaximumLength(30);
+            RuleFor(m => m).NotEmpty().Matches(@"[\w\-@#]{3,30}");
         }
     }
 }

@@ -13,9 +13,8 @@ namespace TeacherControl.Domain.DTOs
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
 
-        public virtual int Professor { get; set; }
-        public virtual ICollection<string> Tags { get; set; }
-        public virtual ICollection<string> Types { get; set; }
-        public virtual int Status { get; set; }
+        public int Professor { get; set; }
+        public IEnumerable<string> Tags { get; set; }
+        public int Status { get; set; }
     }
 }

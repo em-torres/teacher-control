@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using TeacherControl.Common.Enums;
+using TeacherControl.Domain.Enums;
 
 namespace TeacherControl.Domain.DTOs
 {

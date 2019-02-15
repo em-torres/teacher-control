@@ -1,35 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using TeacherControl.Domain.DTOs;
 using TeacherControl.Domain.Models;
-using TeacherControl.Domain.QueryFilters;
+using TeacherControl.Domain.Queries;
 
 namespace TeacherControl.Domain.Repositories
 {
     public interface IAssignmentRepository : IRepository<Assignment>
     {
-        int Add(AssignmentDTO dto, string createBy, string updatedBy = "");
-        int UpdateById(int ID);
-        int UpdateByTokenId(string tokenID);
+        int Add(AssignmentDTO dto, string createBy);
+        int DeleteById(int ID, string updatedBy);
+        int DeleteByTokenId(string tokenID, string updatedBy);
+        int Update(int id, AssignmentDTO dto, string updatedBy);
+        int UpdateTags(int id, IEnumerable<string> tags, string updateBy);
+        int UpdateGroups(int id, IEnumerable<string> groups, string updateBy);
+        int UpdateUpvoteCount(int id, int value);
+        int UpdateViewsCount(int id, int value);
 
-        void DeleteTags(AssignmentDTO AssignmentDTO);
-        void DeleteGroups(AssignmentDTO AssignmentDTO);
-        void DeleteTypes(AssignmentDTO AssignmentDTO);
-        void DeleteDependecies(AssignmentDTO AssignmentDTO);
-
-        Task<IEnumerable<AssignmentDTO>> GetAllByFilters(AssignmentQueryFilter filters);
-
+        Task<IEnumerable<AssignmentDTO>> GetByFilters(AssignmentQuery dto);
         IEnumerable<AssignmentDTO> GetByTitle(string title);
-        IEnumerable<AssignmentDTO> GetFromStartDate(DateTime startDate);
-        IEnumerable<AssignmentDTO> GetFromEndDate(DateTime endDate);
-        IEnumerable<AssignmentDTO> GetFromStartPoints(float startPoints);
-        IEnumerable<AssignmentDTO> GetFromEndPoints(float endPoints);
-        IEnumerable<AssignmentDTO> GetByExactPoints(float points);
-        IEnumerable<AssignmentDTO> GetByGroups(IEnumerable<string> groups);
-        IEnumerable<AssignmentDTO> GetByTypes(IEnumerable<string> types);
-        IEnumerable<AssignmentDTO> GetByTags(IEnumerable<string> tags);
-
-
     }
 }

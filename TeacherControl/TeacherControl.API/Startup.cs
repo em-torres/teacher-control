@@ -30,12 +30,14 @@ namespace TeacherControl.API
                 .ConfigureRepositories()
                 .AddPluralizationService()
                 .AddMiddlewares()
-                .AddCorsConfiguration();
+                .AddCorsConfiguration()
+                .AddFluentDTOsValidationRules()
+                .AddFluentQueryFiltersValidationRules();
 
             services
                 .AddMvc()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
-                .AddFluentValidationConfiguration();
+                .AddFluentValidationConfiguration()
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

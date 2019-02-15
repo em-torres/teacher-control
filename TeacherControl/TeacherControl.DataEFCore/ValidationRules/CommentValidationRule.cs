@@ -14,21 +14,21 @@ namespace TeacherControl.DataEFCore.ValidationRules
         {
         }
 
-        private void BuildCommentDbTable(EntityTypeBuilder<Comment> model)
-        {
-            BuildBaseModelDbTable(model);
+        //private void BuildCommentDbTable(EntityTypeBuilder<Commentary> model)
+        //{
+        //    BuildBaseModelDbTable(model);
 
-            model.Property(b => b.Title).IsRequired().HasMaxLength(150);
-            model.Property(b => b.Body).IsRequired().HasMaxLength(500);
-            model.Property(b => b.Upvote).IsRequired();
+        //    model.Property(b => b.Title).IsRequired().HasMaxLength(150);
+        //    model.Property(b => b.Body).IsRequired().HasMaxLength(500);
+        //    model.Property(b => b.Upvote).IsRequired();
 
-            //relations
-            model.HasOne(i => i.Author);
-        }
+        //    //relations
+        //    model.HasOne(i => i.Author);
+        //}
 
         public override void Build()
         {
-            BuildCommentDbTable(_ModelBuilder.Entity<Comment>());
+            //BuildCommentDbTable(_ModelBuilder.Entity<Commentary>());
         }
     }
 }
