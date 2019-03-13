@@ -37,70 +37,59 @@ namespace TeacherControl.API.Controllers
             return this.Ok(() => json);
         }
 
-        [HttpDelete]
-        public IActionResult DeleteAssignment([FromQuery(Name = "id")] int id)
+        [HttpDelete, Route("{assignmentId:int:min(1)}")]
+        public IActionResult DeleteAssignment([FromRoute] int assignmentId)
         {
-            if (id > 0)
-            {
-                return this.NoContent(() => _AssignmentRepo.DeleteById(id, this.GetUsername()) > 0);
-            }
-
-            return BadRequest("The Request has an invalid ID");
+            return this.NoContent(() => _AssignmentRepo.DeleteById(assignmentId, this.GetUsername()) > 0);
         }
 
-        [HttpDelete]
-        public IActionResult DeleteAssignment([FromQuery(Name = "id")] string tokenID)
+        [HttpDelete, Route("{assignmentId:length(12, 150)}")] //TODO: validate this range thought the DB
+        public IActionResult DeleteAssignment([FromRoute] string assignmentId)
         {
-            if (!string.IsNullOrWhiteSpace(tokenID))
+            if (!string.IsNullOrWhiteSpace(assignmentId))
             {
-                if (Regex.IsMatch(tokenID.ToLower(), @"([a-f0-9]{12})$"))
+                if (Regex.IsMatch(assignmentId.ToLower(), @"([a-f0-9]{12})$"))
                 {
-                    return this.NoContent(() => _AssignmentRepo.DeleteByTokenId(tokenID, this.GetUsername()) > 0);
+                    return this.NoContent(() => _AssignmentRepo.DeleteByTokenId(assignmentId, this.GetUsername()) > 0);
                 }
             }
             return BadRequest("The Request has an invalid ID");
         }
 
-        [HttpPut]
-        public IActionResult UpdateAssignment([FromQuery(Name = "id")] int id, [FromBody] AssignmentDTO dto)
+        [HttpPut, Route("{assignmentId:int:min(1)}")]
+        public IActionResult UpdateAssignment([FromQuery] int assignmentId, [FromBody] AssignmentDTO dto)
         {
-            if (id > 0)
+            lock (new object())
             {
-                lock (new object())
-                {
-                    return this.NoContent(() => _AssignmentRepo.Update(id, dto, this.GetUsername()) > 0);
-                }
-
+                return this.NoContent(() => _AssignmentRepo.Update(assignmentId, dto, this.GetUsername()) > 0);
             }
-
-            return BadRequest("The Id or the JsonBody are invalid");
         }
 
-        [HttpPatch, Route("UpdateTags")]
-        public IActionResult UpdateAssigmentTags([FromQuery(Name = "id")] int id, [FromBody] IEnumerable<string> tags)
+        [HttpPatch, Route("{assignmentId:int:min(1)}/update-tags")]
+        public IActionResult UpdateAssigmentTags([FromQuery] int assignmentId, [FromBody] IEnumerable<string> tags)
         {
-            if (id > 0 && tags != null && tags.Count() > 0)
+            if (tags != null && tags.Count() > 0)
             {
                 lock (new object())
                 {
                     tags = tags.Where(i => Regex.IsMatch(i, @"[\w\-#]{3,30}"));
-                    return this.NoContent(() => _AssignmentRepo.UpdateTags(id, tags, this.GetUsername()) > 0);
+                    return this.NoContent(() => _AssignmentRepo.UpdateTags(assignmentId, tags, this.GetUsername()) > 0);
                 }
 
             }
 
-            return BadRequest("The Id or the JsonBody are invalid");
+            return BadRequest("The JsonBody is invalid");
         }
 
-        [HttpPatch, Route("UpdateGroups")]
-        public IActionResult UpdateAssigmentGroups([FromQuery(Name = "id")] int id, [FromBody] IEnumerable<string> groups)
+        [HttpPatch, Route("{assignmentId:int:min(1)}/update-groups")]
+        public IActionResult UpdateAssigmentGroups([FromQuery] int assignmentId, [FromBody] IEnumerable<string> groups)
         {
-            if (id > 0 && groups != null && groups.Count() > 0)
+            if (groups != null && groups.Count() > 0)
             {
                 lock (new object())
                 {
                     groups = groups.Where(i => Regex.IsMatch(i, @"[\w\-#@]{3,60}"));
-                    return this.NoContent(() => _AssignmentRepo.UpdateGroups(id, groups, this.GetUsername()) > 0);
+                    return this.NoContent(() => _AssignmentRepo.UpdateGroups(assignmentId, groups, this.GetUsername()) > 0);
                 }
 
             }
@@ -108,24 +97,29 @@ namespace TeacherControl.API.Controllers
             return BadRequest("The Id or the JsonBody are invalid");
         }
 
-        [HttpPatch, Route("UpVote")]
-        public IActionResult AddAssignmentUpvote([FromQuery(Name = "id")] int Id)
+        [HttpPatch, Route("{assignmentId:int:min(1)}/upvote")]
+        public IActionResult AddAssignmentUpvote([FromQuery] int assignmentId)
         {
             int upvote = 1;
-            return this.NoContent(() => _AssignmentRepo.UpdateUpvoteCount(Id, upvote) > 0);
+            return this.NoContent(() => _AssignmentRepo.UpdateUpvoteCount(assignmentId, upvote) > 0);
         }
 
-        [HttpPatch, Route("DownVote")]
-        public IActionResult DownAssignmentUpvote([FromQuery(Name = "id")] int Id)
+        [HttpPatch, Route("{assignmentId:int:min(1)}/downvote")]
+        public IActionResult DownAssignmentUpvote([FromQuery] int assignmentId)
         {
             int upvote = -1;
-            return this.NoContent(() => _AssignmentRepo.UpdateUpvoteCount(Id, upvote) > 0);
+            return this.NoContent(() => _AssignmentRepo.UpdateUpvoteCount(assignmentId, upvote) > 0);
         }
 
-        [HttpPatch, Route("GetByTitle")]
-        public IActionResult GetByTitle([FromQuery(Name = "title")] string title)
-        {
-            return this.Ok(() => JArray.FromObject(_AssignmentRepo.GetByTitle(title)));
-        }
+        //TODO: get if the user successfully complete the assignment
+        //[HttpGet, Route("is-passed")]
+        //public IActionResult IsPassed([FromRoute] int assignmentId)
+        //{
+        //    //return this.Ok(() => JArray.FromObject(_AssignmentRepo.GetQuestionnaireResults(assignmentId, this.GetUsername()));
+        //    return null;
+        //}
+
+        //TODO: get the questionnaire result set
+
     }
 }

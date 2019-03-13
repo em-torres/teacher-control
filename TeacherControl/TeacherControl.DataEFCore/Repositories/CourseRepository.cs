@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using System.Collections.Generic;
 using System.Linq;
+using TeacherControl.Common.Extensors;
+using TeacherControl.DataEFCore.Extensors;
 using TeacherControl.Domain.DTOs;
 using TeacherControl.Domain.Models;
 using TeacherControl.Domain.Queries;
@@ -19,8 +21,7 @@ namespace TeacherControl.DataEFCore.Repositories
         {
             Course course = _Mapper.Map<CourseDTO, Course>(dto);
 
-            IEnumerable<string> tags = dto.Tags.Select(t => t.ToLower());
-            course.Tags = tags.Select(t => new CourseTag { Name = t }).ToList();
+            course.Tags = dto.Tags.Select(t => new CourseTag { Name = t }).ToList();
             course.CreatedBy = createdBy;
             course.Status = _Context.Statuses.Where(i => i.Id.Equals((int)Domain.Enums.Status.Active)).First();
 
@@ -56,17 +57,51 @@ namespace TeacherControl.DataEFCore.Repositories
 
         public IEnumerable<CourseDTO> GetAll(CourseQuery dto)
         {
-            IQueryable<Course> courses = GetAll();
+            IQueryable<Course> courses = GetAll()
+                .GetByName(dto.Name)
+                .GetByDatesRange(dto.StartDate, dto.EndDate)
+                .GetByCreditsRange(dto.CreditsFrom, dto.CreditsEnd)
+                .GetByTags(dto.Tags)
+                .Pagination(dto.Page, dto.PageSize);
 
-            if (!string.IsNullOrEmpty(dto.Name)) courses = courses.Where(i => i.Name.ToLower().Contains(dto.Name.ToLower()));
-
-            if (dto.ExactCredits == 0 && dto.StartFrom > 0 && dto.EndFrom > 0 && dto.StartFrom <= dto.EndFrom)
-                courses = courses.Where(i => dto.StartFrom >= i.Credits && dto.EndFrom <= i.Credits);
-
-            if (dto.ExactCredits > 0) courses = courses.Where(i => i.Credits.Equals(dto.ExactCredits));
-
-            courses = courses.Skip(dto.Page * dto.PageSize).Take(dto.PageSize > 0 ? dto.PageSize : 50);
             return _Mapper.Map<IEnumerable<Course>, IEnumerable<CourseDTO>>(courses);
+        }
+
+        public int AddComment(int CourseId, CourseCommentDTO dto, string CreatedBy)
+        {
+            Course course = Find(i => i.Id.Equals(CourseId));
+            CourseComment comment = _Mapper.Map<CourseCommentDTO, CourseComment>(dto);
+            comment.CreatedBy = CreatedBy;
+
+            course.Comments.Add(comment);
+
+            return _Context.SaveChanges();
+        }
+
+        public int UpdateComment(int CourseId, CourseCommentDTO dto, string CreatedBy)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public int GetAllCourseComments(int CourseId, CourseCommentQuery Query)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public int DisableCourseComment(int CourseId, int CommentId)
+        {
+            CourseComment comment = Find(i => i.Id.Equals(CourseId)).Comments.Where(i => i.Id.Equals(CommentId)).First();
+            comment.StatusId = (int) Domain.Enums.Status.Disabled;
+
+            return _Context.SaveChanges();
+        }
+
+        public int UpdateUpvoteCourseComment(int CourseId, int CommentId, int upvote)
+        {
+            CourseComment comment = Find(i => i.Id.Equals(CourseId)).Comments.Where(i => i.Id.Equals(CommentId)).First();
+            comment.Upvote += upvote;
+
+            return _Context.SaveChanges();
         }
     }
 }

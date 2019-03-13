@@ -9,12 +9,12 @@ namespace TeacherControl.Domain.DTOs
     {
         public string Name { get; set; }
         public string Description { get; set; }
-        public float Credits { get; set; }
+        public double Credits { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
 
         public int Professor { get; set; }
-        public IEnumerable<string> Tags { get; set; }
+        public string Tags { get; set; }
         public int Status { get; set; }
     }
 }

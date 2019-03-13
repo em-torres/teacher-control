@@ -15,7 +15,6 @@ namespace TeacherControl.Domain.Queries
         public string Groups { get; set; }
         public string Types { get; set; }
         public string Tags { get; set; }
-        public float Points { get; set; }
         public Status Status { get; set; }
     }
 }

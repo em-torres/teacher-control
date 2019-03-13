@@ -14,6 +14,7 @@ namespace TeacherControl.DataEFCore.ValidationRules
         private readonly UserBuilderValidator userBuilderValidator;
         private readonly QuestionnaireValidationRule questionnaireValidationRules;
         private readonly CommentValidationRule commentValidationRules;
+        private readonly CommitmentValidationRule commitmentValidationRule;
 
         public Validations(ModelBuilder builder)
         {
@@ -24,17 +25,19 @@ namespace TeacherControl.DataEFCore.ValidationRules
             userBuilderValidator = new UserBuilderValidator(builder);
             questionnaireValidationRules = new QuestionnaireValidationRule(builder);
             commentValidationRules = new CommentValidationRule(builder);
+            commitmentValidationRule = new CommitmentValidationRule(builder);
         }
 
         public void BuildRules()
         {
-            assignmentValidation.Build();
             courseValidationRules.Build();
+            assignmentValidation.Build();
             statusValidationRules.Build();
             groupValidationRules.Build();
             userBuilderValidator.Build();
             questionnaireValidationRules.Build();
             commentValidationRules.Build();
+            commitmentValidationRule.Build();
         }
     }
 }

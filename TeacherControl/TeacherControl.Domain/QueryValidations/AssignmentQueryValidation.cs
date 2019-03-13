@@ -13,9 +13,8 @@ namespace TeacherControl.Domain.QueryValidations
             RuleFor(m => m.StartDate).NotNull().GreaterThanOrEqualTo(DateTime.UtcNow);
             RuleFor(m => m.EndDate).NotNull().LessThanOrEqualTo(DateTime.MaxValue);
             RuleFor(m => m.Status).IsInEnum();
-            RuleFor(m => m.Points).GreaterThan(0);
 
-            RuleFor(m => m.Tags).NotEmpty().MinimumLength(5).MaximumLength(30);
+            RuleFor(m => m.Tags).NotEmpty().MinimumLength(5).MaximumLength(30); //TODO: put a regex here to valid \w+,\w+
             RuleFor(m => m.Groups).NotEmpty().MinimumLength(5).MaximumLength(50);
 
             string DatesErrorMessage = "The Start Date should be less than the End Date value";

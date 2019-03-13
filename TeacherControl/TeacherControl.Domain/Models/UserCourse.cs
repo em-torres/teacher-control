@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace TeacherControl.Domain.DTOs
+namespace TeacherControl.Domain.Models
 {
-    public class QuestionMatchDTO
+    class UserCourse : BaseModel
     {
     }
 }

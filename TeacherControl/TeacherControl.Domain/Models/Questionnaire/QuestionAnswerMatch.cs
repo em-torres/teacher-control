@@ -7,8 +7,10 @@ namespace TeacherControl.Domain.Models
     public class QuestionAnswerMatch
     {
         public int Id { get; set; }
-        public QuestionAnswer LeftQuestionAnswer { get; set; }
-        public QuestionAnswer RightQuestionAnswer { get; set; }
-        
+        public int LeftQuestionAnswerId { get; set; }
+        public int RightQuestionAnswerId { get; set; }
+
+        public int QuestionId { get; set; }
+        public Question Question { get; set; }
     }
 }

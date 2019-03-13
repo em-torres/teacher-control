@@ -18,6 +18,6 @@ namespace TeacherControl.Domain.Repositories
         int UpdateViewsCount(int id, int value);
 
         Task<IEnumerable<AssignmentDTO>> GetByFilters(AssignmentQuery dto);
-        IEnumerable<AssignmentDTO> GetByTitle(string title);
+        Task<IEnumerable<AssignmentResultDTO>> GetQuestionnaireResults(int Id, string username);
     }
 }

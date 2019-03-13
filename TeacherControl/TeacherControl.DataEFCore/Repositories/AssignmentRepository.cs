@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using TeacherControl.Common.Extensors;
+using TeacherControl.DataEFCore.Extensors;
 using TeacherControl.Domain.DTOs;
 using TeacherControl.Domain.Models;
 using TeacherControl.Domain.Queries;
@@ -18,76 +20,15 @@ namespace TeacherControl.DataEFCore.Repositories
         {
         }
 
-        public IEnumerable<AssignmentDTO> GetByTitle(string title)
-        {
-            //format: this-is-a-title-[a-f0-9]{12}
-            //format: this-is-a-title
-            IQueryable<Assignment> assignments = null;
-            MatchCollection titleMatches = new Regex(@"(\w+(?=\-))").Matches(title);
-            Match titleIdMatch = new Regex(@"[a-f0-9]{12}$").Match(title);
-
-            if (!string.IsNullOrEmpty(title))
-            {
-                if (titleMatches.Count > 0)
-                {
-                    if (titleIdMatch.Success)
-                    {
-                        assignments = _Context.Assignments.Where(i => i.HashIndex.Equals(titleIdMatch));
-
-                    }
-                    assignments = _Context.Assignments.Where(i => i.Title.Equals(title) || i.Title.Contains(title));
-                }
-            }
-            return _Mapper.Map<IEnumerable<Assignment>, IEnumerable<AssignmentDTO>>(assignments);
-        }
-
         public Task<IEnumerable<AssignmentDTO>> GetByFilters(AssignmentQuery filters)
         {
-            IQueryable<Assignment> assignments = null;
-            Match titleIndex = new Regex(@"[a-f0-9]{12}$").Match(filters.Title);
-
-            if (!string.IsNullOrEmpty(filters.Title))
-                assignments = _Context.Assignments.Where(a => a.HashIndex.Equals(titleIndex.Value));
-
-            /* Dateime.Compare(t1, t2): https://docs.microsoft.com/en-us/dotnet/api/system.datetime.compare?view=netcore-2.1
-             * if the filters dont have a end_date, search an entry from the start_date
-             * if the filters dont have a end_date, search an entry from the end_date
-             * else seach between the [start_end]-[end_date] range
-             */
-            if (filters.EndDate.Equals(DateTime.MinValue))
-                assignments = _Context.Assignments.Where(a => DateTime.Compare(filters.StartDate, a.StartDate) >= 0);
-            else if (filters.StartDate.Equals(DateTime.MinValue))
-                assignments = _Context.Assignments.Where(a => DateTime.Compare(filters.EndDate, a.EndDate) <= 0);
-            else if (DateTime.Compare(filters.StartDate, filters.EndDate) < 0)
-                assignments = _Context.Assignments.Where(a => DateTime.Compare(filters.StartDate, a.StartDate) >= 0 && DateTime.Compare(filters.EndDate, a.EndDate) <= 0);
-
-            if (filters.Points >= 0)
-                assignments = _Context.Assignments.Where(a => a.Points.Equals(filters.Points));
-
-            if (filters.StartPoints >= 0 && filters.EndPoints <= 0)
-                assignments = _Context.Assignments.Where(a => a.Points >= filters.StartPoints && a.Points <= filters.EndPoints);
-
-            if (filters.Tags.Count() > 0)
-            {
-                IEnumerable<string> tags = filters.Tags.Split(",");
-                assignments = _Context.Assignments.Where(a => a.Tags.Select(t => t.Name).SequenceEqual(tags));
-            }
-
-            if (filters.Groups.Count() > 0)
-            {
-                IEnumerable<string> groups = filters.Tags.Split(",");
-                assignments = _Context.Assignments.Where(a => a.Groups.Select(t => t.Group.Name).SequenceEqual(groups));
-            }
-
-            if (filters.Status > 0)
-            {
-                assignments = assignments.Where(a => a.Status.Equals(filters.Status));
-            }
-
-            if (filters.Page >= 0 && filters.PageSize >= 0)
-            {
-                assignments = assignments.Skip(filters.Page * filters.PageSize).Take(filters.PageSize);
-            }
+            IQueryable<Assignment> assignments = _Context.Assignments
+                .GetByTitle(filters.Title)
+                .GetByDatesRange(filters.StartDate, filters.EndDate)
+                .GetByPointsRange(filters.StartPoints, filters.StartPoints)
+                .GetByTags(filters.Tags)
+                .GetByGroups(filters.Groups)
+                .Pagination(filters.Page, filters.PageSize);
 
             return Task.Run(() => _Mapper.Map<Assignment[], IEnumerable<AssignmentDTO>>(assignments.ToArray()));
         }
@@ -110,7 +51,6 @@ namespace TeacherControl.DataEFCore.Repositories
                 return new AssignmentGroup { Group = finds.First() };
             }).ToList();
 
-            model.Status = _Context.Statuses.Find((int)Domain.Enums.Status.Active);
             model.CreatedBy = createBy;
             model.UpdatedDate = DateTime.UtcNow;
 
@@ -123,8 +63,6 @@ namespace TeacherControl.DataEFCore.Repositories
         {
             Assignment assignment = _Context.Assignments.Where(i => i.Id.Equals(ID)).First();
 
-            assignment.Status = _Context.Statuses.Where(i => i.Id.Equals(Domain.Enums.Status.InActive)).First();
-
             assignment.UpdatedBy = updatedBy;
             assignment.UpdatedDate = DateTime.UtcNow;
 
@@ -134,8 +72,6 @@ namespace TeacherControl.DataEFCore.Repositories
         public int DeleteByTokenId(string tokenID, string updatedBy)
         {
             Assignment assignment = _Context.Assignments.Where(i => i.HashIndex.Equals(tokenID)).First();
-            int InActiveID = (int)Domain.Enums.Status.InActive;
-            assignment.Status = _Context.Statuses.Where(i => i.Id.Equals(InActiveID)).First();
 
             assignment.UpdatedBy = updatedBy;
             assignment.UpdatedDate = DateTime.UtcNow;
@@ -147,7 +83,6 @@ namespace TeacherControl.DataEFCore.Repositories
         {
             Assignment old = _Context.Assignments.Where(i => i.Id.Equals(id)).First();
             Assignment newModel = _Mapper.Map<AssignmentDTO, Assignment>(dto);
-            Status status = _Context.Statuses.Where(i => i.Id.Equals(dto.Status)).First();
 
             newModel.UpdatedDate = DateTime.UtcNow;
 
@@ -206,6 +141,23 @@ namespace TeacherControl.DataEFCore.Repositories
             assignment.Counts.ViewsCount = assignment.Counts.ViewsCount + value;
 
             return _Context.SaveChanges();
+        }
+
+        public Task<IEnumerable<AssignmentResultDTO>> GetQuestionnaireResults(int assignmentId, string username)
+        {
+            //Func<IEnumerable<AssignmentResultDTO>> action = () => {
+            //    int userID = _Context.Users.Where(i => i.Username.Equals(username)).First().Id;
+
+            //    IEnumerable<AssignmentResultDTO> dtos = _Context.Assignments
+            //        .Where(i => i.Id.Equals(assignmentId))
+            //        .Select(i => _Mapper.Map<Assicx`3gnment, AssignmentResultDTO>(i));
+
+            //    return dtos;
+            //};
+
+            //return Task.Factory.StartNew(action);
+
+            throw new NotImplementedException();
         }
     }
 }

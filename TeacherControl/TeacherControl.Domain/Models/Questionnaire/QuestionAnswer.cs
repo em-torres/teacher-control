@@ -12,6 +12,7 @@ namespace TeacherControl.Domain.Models
 
         public int QuestionId { get; set; }
         public virtual Question Question { get; set; }
+        public virtual ICollection<UserAnswer> UserAnswers { get; set; }
 
     }
 }

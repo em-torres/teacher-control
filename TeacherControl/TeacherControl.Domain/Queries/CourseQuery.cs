@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using TeacherControl.Domain.Enums;
 
 namespace TeacherControl.Domain.Queries
 {
     public class CourseQuery : BaseQuery
     {
         public string Name { get; set; }
-        public float ExactCredits { get; set;  }
-        public float StartFrom { get; set; }
-        public float EndFrom { get; set; }
+        public double CreditsFrom { get; set; }
+        public double CreditsEnd { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public string Professor { get; set; }
+        public Status Status { get; set; }
+        public IEnumerable<string> Tags { get; set; }
     }
 }

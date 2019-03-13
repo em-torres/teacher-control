@@ -12,6 +12,8 @@ namespace TeacherControl.Domain.Models
 
         public virtual UserInfo UserInfo { get; set; }
         public virtual ICollection<UserGroup> Groups { get; set; }
+        public virtual ICollection<UserAnswer> UserAnswers { get; set; }
+
 
         //public User(string authToken, IEnumerable<UserGroup> Groups)
         //{

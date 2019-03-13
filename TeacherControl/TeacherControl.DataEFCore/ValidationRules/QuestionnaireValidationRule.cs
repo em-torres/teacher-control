@@ -20,8 +20,7 @@ namespace TeacherControl.DataEFCore.ValidationRules
             BuildQuestionnaireDbTable(_ModelBuilder.Entity<Questionnaire>());
             BuildQuestionAnswerDbTable(_ModelBuilder.Entity<QuestionAnswer>());
             BuildQuestionAnswerMatchDbTable(_ModelBuilder.Entity<QuestionAnswerMatch>());
-            BuildQuestionAnswerUserMatchDbTable(_ModelBuilder.Entity<QuestionAnswerUserMatch>());
-            BuildQuestionAnswerUserDbTable(_ModelBuilder.Entity<QuestionAnswerUser>());
+
         }
 
         private void BuildQuestionnaireDbTable(EntityTypeBuilder<Questionnaire> model)
@@ -42,55 +41,33 @@ namespace TeacherControl.DataEFCore.ValidationRules
         private void BuildQuestionDbTable(EntityTypeBuilder<Question> model)
         {
             model.HasKey(b => b.Id);
-            model.Property(b => b.Id).ValueGeneratedOnAdd();
 
-            model.Property(b => b.Title).IsRequired();
+            model.Property(b => b.HeadLine).IsRequired();
             model.Property(b => b.Points).IsRequired();
             model.Property(b => b.IsRequired).IsRequired();
-
         }
 
         private void BuildQuestionAnswerDbTable(EntityTypeBuilder<QuestionAnswer> model)
         {
             model.HasKey(b => b.Id);
-            model.Property(b => b.Id).ValueGeneratedOnAdd();
 
             model.Property(b => b.Answer).IsRequired();
             model.Property(b => b.IsCorrect).IsRequired();
 
-            //relations
             model.HasOne(b => b.Question).WithMany(b => b.Answers).HasForeignKey(b => b.QuestionId);
         }
 
         private void BuildQuestionAnswerMatchDbTable(EntityTypeBuilder<QuestionAnswerMatch> model)
         {
             model.HasKey(b => b.Id);
-            model.Property(b => b.Id).ValueGeneratedOnAdd();
 
-            model.HasOne(b => b.LeftQuestionAnswer);
-            model.HasOne(b => b.RightQuestionAnswer);
+            model.Property(b => b.LeftQuestionAnswerId).IsRequired();
+            model.Property(b => b.RightQuestionAnswerId).IsRequired();
 
-        }
-
-        private void BuildQuestionAnswerUserMatchDbTable(EntityTypeBuilder<QuestionAnswerUserMatch> model)
-        {
-            model.HasKey(b => b.Id);
-            model.Property(b => b.Id).ValueGeneratedOnAdd();
-
-            model.HasOne(b => b.LeftQuestionAnswer);
-            model.HasOne(b => b.RightQuestionAnswer);
-            model.HasOne(b => b.User);
-
-        }
-
-        private void BuildQuestionAnswerUserDbTable(EntityTypeBuilder<QuestionAnswerUser> model)
-        {
-            model.HasKey(b => b.Id);
-            model.Property(b => b.Id).ValueGeneratedOnAdd();
-
-            model.HasOne(b => b.QuestionAnswer);
-            model.HasOne(b => b.User);
-
+            model
+                .HasOne(b => b.Question)
+                .WithMany(b => b.AnswerMatches)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

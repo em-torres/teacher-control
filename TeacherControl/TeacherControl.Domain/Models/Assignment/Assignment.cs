@@ -12,13 +12,15 @@ namespace TeacherControl.Domain.Models
         public string Body { get; set; }
         public double Points { get; set; }
 
-        // relationships
         public int StatusId { get; set; }
         public Status Status { get; set; }
-        public AssignmentCounts Counts{ get; set; }
+
+        public int CourseId { get; set; }
+        public virtual Course Course { get; set; }
+
+        public virtual AssignmentCounts Counts{ get; set; }
         public virtual ICollection<AssignmentTag> Tags { get; set; }
         public virtual ICollection<AssignmentGroup> Groups { get; set; }
-        //public virtual ICollection<AssignmentComment> Comments { get; set; }
         public virtual ICollection<Questionnaire> Questionnaires { get; set; }
     }
 }

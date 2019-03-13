@@ -11,11 +11,9 @@ namespace TeacherControl.Domain.Repositories
     public interface IQuestionnaireRepository : IRepository<Questionnaire>
     {
         int Add(int AssignmentID, QuestionnaireDTO dto, string createdBy);
-        //Task<IEnumerable<QuestionnaireDTO>> GetByFilters(int AssignmentID, QuestionnaireQuery query);
-
-        //IEnumerable<QuestionMatchDTO> GetQuestionMatches(int questionnaireID);
-        //IEnumerable<QuestionMatchAnswerDTO> GetUserQuestionMatchAnswers(int questionnaireID, int userID);
-        //IEnumerable<QuestionDTO> GetQuestions(int questionnaireID);
-        //IEnumerable<UserQuestionAnswerDTO> GetUserQuestionAnswers(int questionnaireID);
+        IEnumerable<QuestionAnswerDTO> GetCorrectQuestionAnswers(int AssignmentID, int questionnaireID);
+        IEnumerable<QuestionDTO> GetQuestions(int AssignmentID, int questionnaireID);
+        IEnumerable<QuestionAnswerMatchDTO> GetQuestionAnswerMatches(int AssignmentID, int questionnaireID);
+        Task<IEnumerable<QuestionnaireDTO>> GetAllQuestionnaires(int AssignmentID);
     }
 }

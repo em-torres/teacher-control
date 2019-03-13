@@ -9,7 +9,7 @@ namespace TeacherControl.Domain.AutoMapperProfiles
         public QuestionProfile()
         {
             CreateMap<QuestionDTO, Question>()
-                .ForMember(i => i.AnswerMatch, i => i.Ignore())
+                .ForMember(i => i.AnswerMatches, i => i.Ignore())
                 .ForMember(i => i.Questionnaire, i => i.Ignore());
         }
     }

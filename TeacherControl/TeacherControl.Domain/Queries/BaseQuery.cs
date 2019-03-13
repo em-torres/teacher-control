@@ -4,7 +4,7 @@ using System.Text;
 
 namespace TeacherControl.Domain.Queries
 {
-    public class BaseQuery
+    public abstract class BaseQuery
     {
         public int PageSize { get; set; }
         public int Page { get; set; }

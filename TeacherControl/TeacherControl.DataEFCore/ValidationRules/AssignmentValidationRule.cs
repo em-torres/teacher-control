@@ -29,9 +29,14 @@ namespace TeacherControl.DataEFCore.ValidationRules
 
             model.HasIndex(b => b.Title).IsUnique();
             model.HasIndex(b => b.HashIndex).IsUnique();
+            model.HasOne(b => b.Course)
+                .WithMany(b => b.Assignments)
+                .HasForeignKey(b => b.CourseId);
 
-            //relations
-            //model.Ignore(b => b.Status);
+            model.HasOne(b => b.Status)
+                .WithOne()
+                .HasForeignKey<Assignment>(b => b.StatusId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
 
         private void BuildAssignmentTagDbTable(EntityTypeBuilder<AssignmentTag> model)
@@ -46,21 +51,13 @@ namespace TeacherControl.DataEFCore.ValidationRules
                .OnDelete(DeleteBehavior.Cascade);
         }
 
-        public void BuildAssignmentGroupDbTable(ModelBuilder modelBuilder)
+        private void BuildAssignmentGroupDbTable(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<AssignmentGroup>().HasKey(t => new { t.GroupId, t.AssignmentId });
 
             modelBuilder.Entity<AssignmentGroup>().HasOne(i => i.Group).WithMany(i => i.Assignments);
             modelBuilder.Entity<AssignmentGroup>().HasOne(i => i.Assignment).WithMany(i => i.Groups);
         }
-
-        //public void BuildAssignmentCommentDbTable(ModelBuilder modelBuilder)
-        //{
-        //    modelBuilder.Entity<AssignmentComment>().HasKey(t => new { t.AssignmentId, t.CommentId });
-
-        //    modelBuilder.Entity<AssignmentComment>().HasOne(i => i.Comment).WithMany(i => i.Assignments);
-        //    modelBuilder.Entity<AssignmentComment>().HasOne(i => i.Assignment).WithMany(i => i.Comments);
-        //}
 
         public void BuildAssignmentCountsDbTable(EntityTypeBuilder<AssignmentCounts> model)
         {
@@ -71,11 +68,21 @@ namespace TeacherControl.DataEFCore.ValidationRules
             model.HasOne(b => b.Assignment);
         }
 
+        private void BuildAssignmentCommitmentDbTable(EntityTypeBuilder<QuestionnaireCommitment> model)
+        {
+            model.HasKey(b => new { b.QuestionnaireId, b.CommitmentId });
+
+            model.HasOne(b => b.Questionnaire).WithMany(b => b.QuestionnaireCommitments).HasForeignKey(b => b.QuestionnaireId);
+            model.HasOne(b => b.Commitment).WithMany(b => b.AssignmentCommitments).HasForeignKey(b => b.CommitmentId);
+        }
+
         public override void Build()
         {
             BuildAssignmentDbTable(_ModelBuilder.Entity<Assignment>());
             BuildAssignmentTagDbTable(_ModelBuilder.Entity<AssignmentTag>());
             BuildAssignmentCountsDbTable(_ModelBuilder.Entity<AssignmentCounts>());
+            BuildAssignmentCommitmentDbTable(_ModelBuilder.Entity<QuestionnaireCommitment>());
+
             BuildAssignmentGroupDbTable(_ModelBuilder);
         }
     }

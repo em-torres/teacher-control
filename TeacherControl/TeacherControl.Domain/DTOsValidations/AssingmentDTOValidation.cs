@@ -16,7 +16,6 @@ namespace TeacherControl.Domain.DTOsValidations
             RuleFor(m => m.StartDate).NotNull().GreaterThanOrEqualTo(DateTime.UtcNow);
             RuleFor(m => m.EndDate).NotNull().LessThanOrEqualTo(DateTime.MaxValue);
             RuleFor(m => m.Body).NotEmpty().MaximumLength(5000);
-            RuleFor(m => m.Status).IsInEnum();
             RuleFor(m => m.Points).GreaterThan(0);
 
             RuleForEach(m => m.Tags).NotEmpty().MinimumLength(5).MaximumLength(30);

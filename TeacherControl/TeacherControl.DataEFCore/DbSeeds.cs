@@ -15,6 +15,7 @@ namespace TeacherControl.Domain.Seeds
             StatusSeeds();
             GroupSeeds();
             UserSeeds();
+            CourseSeed();
             AssignmentSeeds();
         }
 
@@ -64,6 +65,30 @@ namespace TeacherControl.Domain.Seeds
         }
         #endregion
 
+        #region Course
+
+        public void CourseSeed()
+        {
+            _ModelBuilder
+               .Entity<Course>().HasData(new Course
+               {
+                   Credits = 123.45,
+                   Id = 1,
+                   EndDate = DateTime.UtcNow.AddDays(2),
+                   StartDate = DateTime.UtcNow,
+                   Description = "Lorem Ipsum",
+                   Name = "Lorem Ipsum",
+                   StatusId = 1,
+                   UpdatedBy = "Test Seed",
+                   CreatedDate = DateTime.UtcNow,
+                   ProfessorId = 1,
+                   CreatedBy = "test username",
+                   HashIndex = Guid.NewGuid().ToString()
+               });
+        }
+
+        #endregion
+
         #region Assignment
         public void AssignmentSeeds()
         {
@@ -75,7 +100,7 @@ namespace TeacherControl.Domain.Seeds
                 EndDate = DateTime.UtcNow.AddDays(2),
                 HashIndex = string.Join("", Guid.NewGuid().ToString().Split('-')).Substring(0, 12),
                 Points = 1234,
-                StatusId = 1,
+                CourseId = 1,
                 Title = "lorem ipsum",
                 CreatedBy = "Test",
                 UpdatedBy = "Test",

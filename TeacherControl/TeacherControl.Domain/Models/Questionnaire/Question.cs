@@ -7,14 +7,18 @@ namespace TeacherControl.Domain.Models
     public class Question
     {
         public int Id { get; set; }
-        public string Title { get; set; }
+        public string HeadLine { get; set; }
         public double Points { get; set; }
         public bool IsRequired { get; set; }
+        public int Order { get; set; }
 
         public int QuestionnaireId { get; set; }
         public Questionnaire Questionnaire { get; set; }
 
-        public virtual IEnumerable<QuestionAnswer> Answers { get; set; }
-        public virtual IEnumerable<QuestionAnswerMatch> AnswerMatch { get; set; }
+        public int QuestionTypeId { get; set; }
+        public QuestionType QuestionType { get; set; }
+
+        public virtual ICollection<QuestionAnswer> Answers { get; set; }
+        public virtual ICollection<QuestionAnswerMatch> AnswerMatches { get; set; }
     }
 }

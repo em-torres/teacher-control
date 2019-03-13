@@ -4,7 +4,8 @@ using System.Text;
 
 namespace TeacherControl.Domain.DTOs
 {
-    public class AnswerDTO
+    public class CourseCommentDTO
     {
+
     }
 }

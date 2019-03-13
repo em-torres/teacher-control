@@ -11,6 +11,12 @@ namespace TeacherControl.Domain.Repositories
         int Update(int Id, CourseDTO dto, string username);
         int Remove(int Id, CourseDTO dto, string username);
 
+        int AddComment(int CourseId, CourseCommentDTO dto, string CreatedBy);
+        int UpdateComment(int CourseId, CourseCommentDTO dto, string CreatedBy);
+        int GetAllCourseComments(int CourseId, CourseCommentQuery Query);
+        int DisableCourseComment(int CourseId, int CommentId);
+        int UpdateUpvoteCourseComment(int CourseId, int CommentId, int Upvote);
+
         IEnumerable<CourseDTO> GetAll(CourseQuery courseQueryDTO);
     }
 }

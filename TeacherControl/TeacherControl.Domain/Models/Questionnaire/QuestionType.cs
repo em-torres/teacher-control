@@ -4,10 +4,9 @@ using System.Text;
 
 namespace TeacherControl.Domain.Models
 {
-    public class QuestionAnswerUser
+    public class QuestionType
     {
         public int Id { get; set; }
-        public QuestionAnswer QuestionAnswer { get; set; }
-        public User User { get; set; }
+        public string Name { get; set; }
     }
 }

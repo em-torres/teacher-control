@@ -11,7 +11,6 @@ namespace TeacherControl.Domain.DTOs
         public double Points { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public Status Status { get; set; }
 
         public IEnumerable<string> Tags { get; set; }
         public IEnumerable<string> Groups { get; set; }
