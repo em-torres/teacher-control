@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using System;
-using TeacherControl.Domain.Enums;
-using TeacherControl.Domain.Queries;
+using TeacherControl.Core.Enums;
+using TeacherControl.Core.Queries;
 
 namespace TeacherControl.Domain.QueryValidations
 {

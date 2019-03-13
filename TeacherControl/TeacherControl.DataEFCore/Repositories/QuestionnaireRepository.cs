@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TeacherControl.Domain.DTOs;
-using TeacherControl.Domain.Models;
-using TeacherControl.Domain.Queries;
+using TeacherControl.Core.DTOs;
+using TeacherControl.Core.Models;
+using TeacherControl.Core.Queries;
 using TeacherControl.Domain.Repositories;
 
 namespace TeacherControl.DataEFCore.Repositories
@@ -22,7 +22,7 @@ namespace TeacherControl.DataEFCore.Repositories
             Questionnaire entity = _Mapper.Map<QuestionnaireDTO, Questionnaire>(dto);
             entity.AssignmentId = AssignmentID;
             entity.CreatedBy = createdBy;
-            entity.Status = _Context.Statuses.Where(i => i.Id.Equals((int)Domain.Enums.Status.Active)).First();
+            entity.Status = _Context.Statuses.Where(i => i.Id.Equals((int)Core.Enums.Status.Active)).First();
 
             return Add(entity);
         }

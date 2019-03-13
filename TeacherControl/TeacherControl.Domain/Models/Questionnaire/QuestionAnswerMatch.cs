@@ -11,6 +11,6 @@ namespace TeacherControl.Domain.Models
         public int RightQuestionAnswerId { get; set; }
 
         public int QuestionId { get; set; }
-        public Question Question { get; set; }
+        public virtual Question Question { get; set; }
     }
 }

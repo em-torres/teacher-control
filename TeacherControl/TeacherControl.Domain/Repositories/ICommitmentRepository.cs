@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using TeacherControl.Domain.DTOs;
-using TeacherControl.Domain.Models;
+using TeacherControl.Core.DTOs;
+using TeacherControl.Core.Models;
 
 namespace TeacherControl.Domain.Repositories
 {

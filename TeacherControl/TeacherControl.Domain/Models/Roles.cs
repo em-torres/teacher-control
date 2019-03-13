@@ -4,7 +4,7 @@ using System.Text;
 
 namespace TeacherControl.Domain.Models
 {
-    class Roles
+    public class Roles
     {
     }
 }

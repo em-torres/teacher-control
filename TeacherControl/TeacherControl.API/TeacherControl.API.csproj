@@ -41,8 +41,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TeacherControl.Common\TeacherControl.Common.csproj" />
+    <ProjectReference Include="..\TeacherControl.Core\TeacherControl.Core.csproj" />
     <ProjectReference Include="..\TeacherControl.DataEFCore\TeacherControl.DataEFCore.csproj" />
-    <ProjectReference Include="..\TeacherControl.Domain\TeacherControl.Domain.csproj" />
   </ItemGroup>
 
 </Project>

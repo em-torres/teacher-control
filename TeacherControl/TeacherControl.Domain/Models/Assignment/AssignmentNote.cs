@@ -4,7 +4,7 @@ using System.Text;
 
 namespace TeacherControl.Domain.Models
 {
-    class AssignmentNote
+    public class AssignmentNote
     {
     }
 }

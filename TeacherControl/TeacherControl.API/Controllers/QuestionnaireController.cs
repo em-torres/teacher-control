@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using TeacherControl.API.Extensors;
-using TeacherControl.Domain.DTOs;
-using TeacherControl.Domain.Queries;
+using TeacherControl.Core.DTOs;
+using TeacherControl.Core.Queries;
 using TeacherControl.Domain.Repositories;
 
 namespace TeacherControl.API.Controllers

@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using TeacherControl.Domain.DTOs;
-using TeacherControl.Domain.Models;
-using TeacherControl.Domain.Queries;
+using TeacherControl.Core.DTOs;
+using TeacherControl.Core.Models;
+using TeacherControl.Core.Queries;
 
 namespace TeacherControl.Domain.Repositories
 {

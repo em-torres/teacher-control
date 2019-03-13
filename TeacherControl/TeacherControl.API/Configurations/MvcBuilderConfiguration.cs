@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
-using TeacherControl.Domain.DTOs;
+using TeacherControl.Core.DTOs;
 using TeacherControl.Domain.DTOsValidations;
 
 namespace TeacherControl.API.Configurations
@@ -22,7 +22,9 @@ namespace TeacherControl.API.Configurations
 
         public static IServiceCollection AddFluentDTOsValidationRules(this IServiceCollection services)
         {
-            services.AddTransient<IValidator<AssignmentDTO>, AssingmentDTOValidation>();
+            services
+                .AddTransient<IValidator<AssignmentDTO>, AssingmentDTOValidation>();
+                //.AddTransient<IValidator<CourseDTO>, CourseDTOValidation>();
 
             return services;
         }

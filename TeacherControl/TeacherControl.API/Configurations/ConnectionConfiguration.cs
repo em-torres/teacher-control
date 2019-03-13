@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Runtime.InteropServices;
 using TeacherControl.DataEFCore;
+using TeacherControl.Domain.Services;
 
 namespace TeacherControl.API.Configurations
 {
@@ -23,9 +24,17 @@ namespace TeacherControl.API.Configurations
                                  "<FALLBACK_DOCKER_SQL_SERVER_CONNECTION_STRING_HERE>";
             }
 
-            services.AddDbContextPool<TCContext>(options => options.UseSqlServer(connection));
+            services
+                .AddTransient<IUserService, DummyUserService>() //TODO: add a service that can retieve the user's info 
+                .AddDbContext<TCContext>(options => options.UseSqlServer(connection).UseLazyLoadingProxies());
 
             return services;
         }
+
+        class DummyUserService : IUserService
+        {
+            public string GetUsername() => "TEST_DUMMY_USER";
+        }
+
     }
 }

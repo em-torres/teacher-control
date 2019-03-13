@@ -1,8 +1,8 @@
 ﻿using System;
 using AutoMapper;
 using System.Linq;
-using TeacherControl.Domain.DTOs;
-using TeacherControl.Domain.Models;
+using TeacherControl.Core.DTOs;
+using TeacherControl.Core.Models;
 
 namespace TeacherControl.Domain.AutoMapperProfiles
 {

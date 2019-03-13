@@ -4,7 +4,7 @@ using System.Text;
 
 namespace TeacherControl.Domain.DTOsValidations
 {
-    class QuestionAnswerDTOValidation
+    public class QuestionAnswerDTOValidation
     {
     }
 }

@@ -28,7 +28,7 @@ namespace TeacherControl.API.Configurations
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                 options.SerializerSettings.ContractResolver = new DefaultContractResolver
                 {
-                    NamingStrategy = new SnakeCaseNamingStrategy()
+                    NamingStrategy = new SnakeCaseNamingStrategy(),                    
                 };
             });
 

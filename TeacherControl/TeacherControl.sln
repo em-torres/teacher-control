@@ -3,19 +3,23 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2042
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeacherControl.Domain", "TeacherControl.Domain\TeacherControl.Domain.csproj", "{12CDE8B3-E0AC-4D8B-ADC8-74DEE1BFB770}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeacherControl.Domain", "TeacherControl.Domain\TeacherControl.Domain.csproj", "{12CDE8B3-E0AC-4D8B-ADC8-74DEE1BFB770}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeacherControl.API", "TeacherControl.API\TeacherControl.API.csproj", "{16FC0F83-6A0E-4402-B312-2EAC160ECF8E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeacherControl.API", "TeacherControl.API\TeacherControl.API.csproj", "{16FC0F83-6A0E-4402-B312-2EAC160ECF8E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeacherControl.Common", "TeacherControl.Common\TeacherControl.Common.csproj", "{835E3E69-72A1-44B9-BA62-9C773E4A7AF7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeacherControl.Common", "TeacherControl.Common\TeacherControl.Common.csproj", "{835E3E69-72A1-44B9-BA62-9C773E4A7AF7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeacherControl.DataEFCore", "TeacherControl.DataEFCore\TeacherControl.DataEFCore.csproj", "{16135E01-B1D0-4AC6-B4D5-C83D18C286E3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeacherControl.DataEFCore", "TeacherControl.DataEFCore\TeacherControl.DataEFCore.csproj", "{16135E01-B1D0-4AC6-B4D5-C83D18C286E3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeacherControl.UnitTest", "TeacherControl.UnitTest\TeacherControl.UnitTest.csproj", "{0AF46F8D-2FDA-4EED-AFD1-263A5BD639BB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeacherControl.UnitTest", "TeacherControl.UnitTest\TeacherControl.UnitTest.csproj", "{0AF46F8D-2FDA-4EED-AFD1-263A5BD639BB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeacherControl.IntegrationTest", "TeacherControl.IntegrationTest\TeacherControl.IntegrationTest.csproj", "{827304EB-BB4F-42FC-95B8-759B45C1FD05}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeacherControl.IntegrationTest", "TeacherControl.IntegrationTest\TeacherControl.IntegrationTest.csproj", "{827304EB-BB4F-42FC-95B8-759B45C1FD05}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeacherControl.MockData", "TeacherControl.MockData\TeacherControl.MockData.csproj", "{EC38B701-602D-4136-93BE-7272D7D2F44B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeacherControl.Infraestructure", "TeacherControl.Infraestructure\TeacherControl.Infraestructure.csproj", "{2A273E15-5B28-4FF2-AA5E-747B644E8D55}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeacherControl.MockData", "TeacherControl.MockData\TeacherControl.MockData.csproj", "{4AA4F30D-A114-4629-A6B1-A696E1421B82}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeacherControl.Core", "TeacherControl.Core\TeacherControl.Core.csproj", "{8F8EE19F-A5F2-432B-9454-A98FA9FF3614}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,10 +51,18 @@ Global
 		{827304EB-BB4F-42FC-95B8-759B45C1FD05}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{827304EB-BB4F-42FC-95B8-759B45C1FD05}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{827304EB-BB4F-42FC-95B8-759B45C1FD05}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EC38B701-602D-4136-93BE-7272D7D2F44B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EC38B701-602D-4136-93BE-7272D7D2F44B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EC38B701-602D-4136-93BE-7272D7D2F44B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EC38B701-602D-4136-93BE-7272D7D2F44B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A273E15-5B28-4FF2-AA5E-747B644E8D55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A273E15-5B28-4FF2-AA5E-747B644E8D55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A273E15-5B28-4FF2-AA5E-747B644E8D55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A273E15-5B28-4FF2-AA5E-747B644E8D55}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4AA4F30D-A114-4629-A6B1-A696E1421B82}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4AA4F30D-A114-4629-A6B1-A696E1421B82}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4AA4F30D-A114-4629-A6B1-A696E1421B82}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4AA4F30D-A114-4629-A6B1-A696E1421B82}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F8EE19F-A5F2-432B-9454-A98FA9FF3614}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F8EE19F-A5F2-432B-9454-A98FA9FF3614}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F8EE19F-A5F2-432B-9454-A98FA9FF3614}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F8EE19F-A5F2-432B-9454-A98FA9FF3614}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TeacherControl.Domain.Models;
+using TeacherControl.Core.Models;
 
 namespace TeacherControl.DataEFCore.Generators
 {

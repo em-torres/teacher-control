@@ -1,14 +1,18 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using TeacherControl.DataEFCore.ValidationRules;
-using TeacherControl.Domain.Models;
-using TeacherControl.Domain.Seeds;
+using TeacherControl.DataEFCore.Extensors;
+using TeacherControl.Core.Models;
+using System.Threading;
+using System.Threading.Tasks;
+using TeacherControl.Domain.Services;
 
 namespace TeacherControl.DataEFCore
 {
     public class TCContext : DbContext
     {
-        public virtual DbContextOptions<TCContext> _Options { get; set; }
-        //TODO: recheck the dbsets if follows the EF core conventions
+        protected DbContextOptions<TCContext> _Options { get; set; }
+        protected IUserService _UserService;
+
+        //TODO: re-check the dbsets if follows the EF core conventions
         #region Assignment DB Sets
         public virtual DbSet<Assignment> Assignments { get; set; }
         public virtual DbSet<AssignmentStudentPoint> AssignmentStudentPoints { get; set; }
@@ -28,38 +32,61 @@ namespace TeacherControl.DataEFCore
 
         #region Commitment Db Sets
         public virtual DbSet<Commitment> Commitments { get; set; }
-        public virtual DbSet<UserAnswer> UserAnswers{ get; set; }
+        public virtual DbSet<UserAnswer> UserAnswers { get; set; }
         public virtual DbSet<UserAnswerMatch> UserAnswerMatches { get; set; }
         public virtual DbSet<UserOpenResponseAnswer> UserOpenResponseAnswers { get; set; }
         #endregion
 
+        #region Courses
         public virtual DbSet<Course> Courses { get; set; }
         public virtual DbSet<CourseTag> CourseTags { get; set; }
         public virtual DbSet<CourseComment> CourseComments { get; set; }
         public virtual DbSet<CourseUserCredit> CourseUserCredits { get; set; }
+        #endregion
+
         public virtual DbSet<Group> Groups { get; set; }
         public virtual DbSet<Status> Statuses { get; set; }
         public virtual DbSet<User> Users { get; set; }
-        //public virtual DbSet<Commentary> Comments { get; set; }
 
-        public TCContext(DbContextOptions<TCContext> options) : base(options)
+        public TCContext(DbContextOptions<TCContext> options, IUserService userService) : base(options)
         {
             _Options = options;
+            _UserService = userService;
         }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-                optionsBuilder.UseLazyLoadingProxies();
-            }
-        }
-
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            new Validations(modelBuilder).BuildRules();
-            new DbSeeds(modelBuilder);
+            modelBuilder
+                .BuildModelValidationRules()
+                .ApplyDbSeeds();
         }
 
+        public override int SaveChanges()
+        {
+            if (ChangeTracker.HasChanges())
+            {
+                ChangeTracker
+                    .ApplyAuditInformation(_UserService);
+
+                return base.SaveChanges();
+            }
+            //return no-change enum value
+
+            return 0;
+        }
+
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (ChangeTracker.HasChanges())
+            {
+                ChangeTracker
+                    .ApplyAuditInformation(_UserService);
+
+                return base.SaveChangesAsync();
+            }
+
+            //return no-change enum value
+            return Task.FromResult(0);
+        }
     }
 }

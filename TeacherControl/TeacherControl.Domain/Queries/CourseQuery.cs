@@ -13,6 +13,6 @@ namespace TeacherControl.Domain.Queries
         public DateTime EndDate { get; set; }
         public string Professor { get; set; }
         public Status Status { get; set; }
-        public IEnumerable<string> Tags { get; set; }
+        public string Tags { get; set; }
     }
 }

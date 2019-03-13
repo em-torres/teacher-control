@@ -11,7 +11,7 @@ namespace TeacherControl.Domain.Models
         public int Upvote { get; set; }
 
         public int StatusId { get; set; }
-        public Status Status { get; set; }
+        public virtual Status Status { get; set; }
 
         public int AuthorId { get; set; }
         public virtual User Author { get; set; }

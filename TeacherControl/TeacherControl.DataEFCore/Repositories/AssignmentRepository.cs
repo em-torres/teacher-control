@@ -6,9 +6,9 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TeacherControl.Common.Extensors;
 using TeacherControl.DataEFCore.Extensors;
-using TeacherControl.Domain.DTOs;
-using TeacherControl.Domain.Models;
-using TeacherControl.Domain.Queries;
+using TeacherControl.Core.DTOs;
+using TeacherControl.Core.Models;
+using TeacherControl.Core.Queries;
 using TeacherControl.Domain.Repositories;
 
 namespace TeacherControl.DataEFCore.Repositories
@@ -36,7 +36,7 @@ namespace TeacherControl.DataEFCore.Repositories
         public int Add(AssignmentDTO dto, string createBy)
         {
             Assignment model = _Mapper.Map<AssignmentDTO, Assignment>(dto);
-            int statusID = (int)Domain.Enums.Status.Active;
+            int statusID = (int) Core.Enums.Status.Active;
 
             IEnumerable<string> tags = dto.Tags.Select(t => t.ToLower());
             model.Tags = tags.Select(t => new AssignmentTag { Name = t }).ToList();
@@ -44,7 +44,7 @@ namespace TeacherControl.DataEFCore.Repositories
             IEnumerable<string> groups = dto.Groups.Select(t => t.ToLower());
             model.Groups = groups.Select(t =>
             {
-                IEnumerable<Domain.Models.Group> finds = _Context.Groups.Where(i =>
+                IEnumerable<Core.Models.Group> finds = _Context.Groups.Where(i =>
                     i.Name.ToLower().Equals(t) &&
                     i.StatusId.Equals(statusID));
 
@@ -89,7 +89,7 @@ namespace TeacherControl.DataEFCore.Repositories
             newModel.UpdatedBy = updateBy;
             newModel.UpdatedDate = DateTime.UtcNow;
 
-            Update(i => i.Id.Equals(id), newModel);
+            //Update(i => i.Id.Equals(id), newModel);
 
             return _Context.SaveChanges();
         }
@@ -116,7 +116,7 @@ namespace TeacherControl.DataEFCore.Repositories
 
             groups.ToList().ForEach(i =>
             {
-                Domain.Models.Group group = _Context.Groups.Where(g => g.Name.ToLower().Equals(i.ToLower())).First();
+                Core.Models.Group group = _Context.Groups.Where(g => g.Name.ToLower().Equals(i.ToLower())).First();
                 if (assignment.Groups.Any(t => t.Group.Name.ToLower().Equals(i.ToLower())))
                     assignment.Groups.Add(new AssignmentGroup { Group = group });
             });

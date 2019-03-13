@@ -7,7 +7,7 @@ namespace TeacherControl.Common.Extensors
 {
     public static class LinqExtensors
     {
-        public static IQueryable<T> Pagination<T>(this IQueryable<T> entities, int page, int size = 50) where T : class
+        public static IQueryable<T> Pagination<T>(this IQueryable<T> entities, int page, int size) where T : class
         {
             page = page > 0 ? page : 0;
             size = size > 0 ? size : 50;

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using TeacherControl.Domain.DTOs;
-using TeacherControl.Domain.Models;
-using TeacherControl.Domain.Queries;
+using TeacherControl.Core.DTOs;
+using TeacherControl.Core.Models;
+using TeacherControl.Core.Queries;
 
 namespace TeacherControl.Domain.Repositories
 {
@@ -9,11 +9,11 @@ namespace TeacherControl.Domain.Repositories
     {
         int Add(CourseDTO dto, string username);
         int Update(int Id, CourseDTO dto, string username);
-        int Remove(int Id, CourseDTO dto, string username);
+        int Remove(int Id, string username);
 
         int AddComment(int CourseId, CourseCommentDTO dto, string CreatedBy);
         int UpdateComment(int CourseId, CourseCommentDTO dto, string CreatedBy);
-        int GetAllCourseComments(int CourseId, CourseCommentQuery Query);
+        IEnumerable<CourseCommentDTO> GetAllCourseComments(int CourseId, CourseCommentQuery Query);
         int DisableCourseComment(int CourseId, int CommentId);
         int UpdateUpvoteCourseComment(int CourseId, int CommentId, int Upvote);
 

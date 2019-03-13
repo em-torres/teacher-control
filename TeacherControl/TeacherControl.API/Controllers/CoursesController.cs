@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using TeacherControl.API.Extensors;
-using TeacherControl.Domain.DTOs;
-using TeacherControl.Domain.Queries;
+using TeacherControl.Core.DTOs;
+using TeacherControl.Core.Queries;
 using TeacherControl.Domain.Repositories;
 
 namespace TeacherControl.API.Controllers
@@ -20,40 +23,68 @@ namespace TeacherControl.API.Controllers
         [HttpGet]
         public IActionResult GetAllCourses([FromQuery] CourseQuery filtersDto)
         {
-            return this.Ok(JArray.FromObject(_CourseRepo.GetAll(filtersDto)));
+            return this.Ok(() =>
+            {
+                IEnumerable<CourseDTO> data = _CourseRepo.GetAll(filtersDto);
+                filtersDto.PageSize = filtersDto.PageSize <= 0 ? 50 : filtersDto.PageSize;
+                filtersDto.Page = filtersDto.Page <= 0 ? 1 : filtersDto.Page;
+                JObject json = new JObject()
+                {
+                    ["filters"] = JObject.FromObject(filtersDto),
+                    ["results"] = JArray.FromObject(data),
+                };
+
+                return json;
+            });
         }
 
         [HttpPost]
-        public IActionResult AddCourse([FromBody] CourseDTO dto)
+        public IActionResult AddCourse([FromBody] JObject json)
         {
+            if (json is null)
+            {
+                return BadRequest("Invalid Request Body");
+            }
+
+            CourseDTO dto = json.ToObject<CourseDTO>();
+            dto.Status = Core.Enums.Status.Active;
+
             return this.Created(() =>
                 _CourseRepo.Add(dto, this.GetUsername()) > 0
                     ? JObject.FromObject(dto)
                     : new JObject());
         }
 
-        [HttpDelete]
-        public IActionResult DeleteCourse([FromQuery(Name = "id")] int courseId, [FromBody] CourseDTO dto)
+        [HttpDelete, Route("{courseId:int:min(1)}")]
+        public IActionResult DeleteCourse([FromRoute] int courseId)
         {
-            return this.NoContent(() => _CourseRepo.Remove(courseId, dto, this.GetUsername()) > 0);
+            return this.NoContent(() => _CourseRepo.Remove(courseId, this.GetUsername()) > 0);
         }
 
-        [HttpPut]
-        public IActionResult UpdateCourse([FromQuery(Name = "id")] int courseId, [FromBody] CourseDTO dto)
+        [HttpPut, Route("{courseId:int:min(1)}")]
+        public IActionResult UpdateCourse([FromRoute] int courseId, [FromBody] JObject json)
         {
-            return this.NoContent(() => _CourseRepo.Update(courseId, dto, this.GetUsername()) > 0);
+            CourseDTO dto = json.ToObject<CourseDTO>();
+
+            return this.NoContent(() => _CourseRepo.Update(courseId, dto, "test") > 0);
         }
 
         [HttpGet, Route("{courseId:int:min(1)}/comments")]
         public IActionResult GetCourseComments([FromRoute] int courseId, [FromQuery] CourseCommentQuery query)
         {
-            return this.Ok(() => JArray.FromObject(_CourseRepo.GetAllCourseComments(courseId, query)));
+            return this.Ok(() => {
+                IEnumerable<CourseCommentDTO> data = _CourseRepo.GetAllCourseComments(courseId, query);
+                query.PageSize = query.PageSize <= 0 ? 50 : query.PageSize;
+                query.Page = query.Page <= 0 ? 1 : query.Page;
+
+                return JObject.FromObject(new { query, data });                
+            });
         }
 
         [HttpPost, Route("{courseId:int:min(1)}/comments")]
         public IActionResult AddCourseComment([FromRoute] int courseId, [FromBody] CourseCommentDTO dto)
         {
-            return this.Created(() => 
+            return this.Created(() =>
                 _CourseRepo.AddComment(courseId, dto, this.GetUsername()) > 0
                 ? JObject.FromObject(dto)
                 : new JObject());

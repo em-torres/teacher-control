@@ -13,10 +13,10 @@ namespace TeacherControl.Domain.Models
         public int Order { get; set; }
 
         public int QuestionnaireId { get; set; }
-        public Questionnaire Questionnaire { get; set; }
+        public virtual Questionnaire Questionnaire { get; set; }
 
         public int QuestionTypeId { get; set; }
-        public QuestionType QuestionType { get; set; }
+        public virtual QuestionType QuestionType { get; set; }
 
         public virtual ICollection<QuestionAnswer> Answers { get; set; }
         public virtual ICollection<QuestionAnswerMatch> AnswerMatches { get; set; }

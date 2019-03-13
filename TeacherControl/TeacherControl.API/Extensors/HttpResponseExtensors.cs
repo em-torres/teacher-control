@@ -24,6 +24,8 @@ namespace TeacherControl.API.Extensors
                 }
                 catch (SqlException ex)
                 {
+                    //TODO: just the exceptions should be shown only on the logger, the response should have another message 
+
                     JsonResult json = new JsonResult(ex)
                     {
                         StatusCode = (int)HttpStatusCode.InternalServerError,
@@ -33,6 +35,7 @@ namespace TeacherControl.API.Extensors
                 }
                 catch (Exception ex)
                 {
+                    //TODO: just the exceptions should be shown only on the logger, the response should have another message 
                     JsonResult json = new JsonResult(ex)
                     {
                         StatusCode = (int)HttpStatusCode.InternalServerError,
@@ -61,6 +64,8 @@ namespace TeacherControl.API.Extensors
                 }
                 catch (SqlException ex)
                 {
+                    //TODO: just the exceptions should be shown only on the logger, the response should have another message 
+
                     JsonResult json = new JsonResult(ex)
                     {
                         StatusCode = (int)HttpStatusCode.InternalServerError,
@@ -70,6 +75,8 @@ namespace TeacherControl.API.Extensors
                 }
                 catch (Exception ex)
                 {
+                    //TODO: just the exceptions should be shown only on the logger, the response should have another message 
+
                     JsonResult json = new JsonResult(ex)
                     {
                         StatusCode = (int)HttpStatusCode.InternalServerError,
@@ -98,6 +105,8 @@ namespace TeacherControl.API.Extensors
                 }
                 catch (SqlException ex)
                 {
+                    //TODO: just the exceptions should be shown only on the logger, the response should have another message 
+
                     JsonResult json = new JsonResult(ex)
                     {
                         StatusCode = (int)HttpStatusCode.InternalServerError,
@@ -107,6 +116,8 @@ namespace TeacherControl.API.Extensors
                 }
                 catch (Exception ex)
                 {
+                    //TODO: just the exceptions should be shown only on the logger, the response should have another message 
+
                     JsonResult json = new JsonResult(ex)
                     {
                         StatusCode = (int)HttpStatusCode.InternalServerError,
@@ -135,6 +146,8 @@ namespace TeacherControl.API.Extensors
                 }
                 catch (SqlException ex)
                 {
+                    //TODO: just the exceptions should be shown only on the logger, the response should have another message 
+
                     JsonResult json = new JsonResult(ex)
                     {
                         StatusCode = (int)HttpStatusCode.InternalServerError,
@@ -144,6 +157,8 @@ namespace TeacherControl.API.Extensors
                 }
                 catch (Exception ex)
                 {
+                    //TODO: just the exceptions should be shown only on the logger, the response should have another message 
+
                     JsonResult json = new JsonResult(ex)
                     {
                         StatusCode = (int)HttpStatusCode.InternalServerError,

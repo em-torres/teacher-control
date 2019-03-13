@@ -10,9 +10,9 @@ namespace TeacherControl.Domain.Models
         public string UserResponse { get; set; }
 
         public int QuestionId { get; set; }
-        public Question Question { get; set; }
+        public virtual Question Question { get; set; }
 
         public int CommitmentId { get; set; }
-        public Commitment Commitment { get; set; }
+        public virtual Commitment Commitment { get; set; }
     }
 }

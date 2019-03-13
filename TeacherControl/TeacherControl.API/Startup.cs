@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Generic;
+using System.Globalization;
 using TeacherControl.API.Configurations;
 
 namespace TeacherControl.API
@@ -46,10 +49,12 @@ namespace TeacherControl.API
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+
             }
 
-            app.UseMvc(routes => routes.MapRoute("api", "api/{controller}/{id:int:min(1)?}"));//TODO: check if this is right
+            app.UseMvc(routes => routes.MapRoute("api", "api/{controller}"));//TODO: check if this is right
         }
+
 
     }
 }

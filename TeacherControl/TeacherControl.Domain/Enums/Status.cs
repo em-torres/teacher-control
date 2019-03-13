@@ -9,6 +9,9 @@ namespace TeacherControl.Domain.Enums
         Active = 1,
         InActive,
         Pending,
-        Disabled
+        Disabled,
+        Deleted,
+        Deprecated,
+        Blocked,
     }
 }

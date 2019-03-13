@@ -1,11 +1,12 @@
 ﻿using AutoMapper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TeacherControl.Common.Extensors;
 using TeacherControl.DataEFCore.Extensors;
-using TeacherControl.Domain.DTOs;
-using TeacherControl.Domain.Models;
-using TeacherControl.Domain.Queries;
+using TeacherControl.Core.DTOs;
+using TeacherControl.Core.Models;
+using TeacherControl.Core.Queries;
 using TeacherControl.Domain.Repositories;
 
 namespace TeacherControl.DataEFCore.Repositories
@@ -20,59 +21,70 @@ namespace TeacherControl.DataEFCore.Repositories
         public int Add(CourseDTO dto, string createdBy)
         {
             Course course = _Mapper.Map<CourseDTO, Course>(dto);
+            Status status = _Context.Statuses.Where(i => i.Id.Equals((int)Core.Enums.Status.Active)).First();
 
-            course.Tags = dto.Tags.Select(t => new CourseTag { Name = t }).ToList();
             course.CreatedBy = createdBy;
-            course.Status = _Context.Statuses.Where(i => i.Id.Equals((int)Domain.Enums.Status.Active)).First();
+            course.Status = status;
+            course.Professors = new List<UserCourse>()
+            {
+                new UserCourse { User = _Context.Users.Where(i => i.Id.Equals(dto.Professor)).First() }
+            };
 
             return Add(course);
         }
 
         public int Update(int id, CourseDTO dto, string updatedBy)
         {
-            Course course = _Mapper.Map<CourseDTO, Course>(dto);
+            Course newCourse = _Mapper.Map<CourseDTO, Course>(dto);
+            //Course oldCourse = _Context.Courses.Where(i => i.Id.Equals(id)).FirstOrDefault();
 
-            IEnumerable<string> tags = dto.Tags.Select(t => t.ToLower());
-            course.Tags = tags.Select(t => new CourseTag { Name = t }).ToList();
-            course.UpdatedBy = updatedBy;
+            if (_Context.Courses.Any(i => i.Id.Equals(id)))
+            {
+                Update( i => i.Id.Equals(id) , dto);
+                return _Context.SaveChanges();
+            }
 
-            Update(i => i.Id.Equals(id), course);
-
-            return _Context.SaveChanges();
+            return 0;
         }
 
-        public int Remove(int id, CourseDTO dto, string updatedBy)
+        public int Remove(int id, string updatedBy)
         {
-            Course course = _Mapper.Map<CourseDTO, Course>(dto);
+            int removedStatusID = (int)Core.Enums.Status.Deleted;
+            Course course = _Context.Courses.Where(i => i.Id.Equals(id)).First();
 
-            IEnumerable<string> tags = dto.Tags.Select(t => t.ToLower());
-            course.Tags = tags.Select(t => new CourseTag { Name = t }).ToList();
-            course.UpdatedBy = updatedBy;
-            course.Status = _Context.Statuses.Where(i => i.Id.Equals((int)Domain.Enums.Status.Active)).First();
+            if (course.StatusId != removedStatusID)
+            {
+                course.UpdatedBy = updatedBy;
+                course.Status = _Context.Statuses.Where(i => i.Id.Equals(removedStatusID)).First();
 
-            Update(i => i.Id.Equals(id), course);
+                return _Context.SaveChanges();
+            }
 
-            return _Context.SaveChanges();
+            return 0;
         }
 
         public IEnumerable<CourseDTO> GetAll(CourseQuery dto)
         {
+            IEnumerable<string> tags = dto.Tags != null && dto.Tags.Length > 0
+                ? dto.Tags.Split(",")
+                : new List<string>(0).AsEnumerable();
+
             IQueryable<Course> courses = GetAll()
                 .GetByName(dto.Name)
                 .GetByDatesRange(dto.StartDate, dto.EndDate)
                 .GetByCreditsRange(dto.CreditsFrom, dto.CreditsEnd)
-                .GetByTags(dto.Tags)
+                .GetByTags(tags)
                 .Pagination(dto.Page, dto.PageSize);
 
-            return _Mapper.Map<IEnumerable<Course>, IEnumerable<CourseDTO>>(courses);
+            return Mapper.Map<IEnumerable<Course>, IEnumerable<CourseDTO>>(courses.ToList());
         }
 
         public int AddComment(int CourseId, CourseCommentDTO dto, string CreatedBy)
         {
             Course course = Find(i => i.Id.Equals(CourseId));
+
             CourseComment comment = _Mapper.Map<CourseCommentDTO, CourseComment>(dto);
             comment.CreatedBy = CreatedBy;
-
             course.Comments.Add(comment);
 
             return _Context.SaveChanges();
@@ -83,15 +95,18 @@ namespace TeacherControl.DataEFCore.Repositories
             throw new System.NotImplementedException();
         }
 
-        public int GetAllCourseComments(int CourseId, CourseCommentQuery Query)
+        public IEnumerable<CourseCommentDTO> GetAllCourseComments(int CourseId, CourseCommentQuery Query)
         {
-            throw new System.NotImplementedException();
+            Course course= Find(i => i.Id.Equals(CourseId));
+            IQueryable<CourseComment> comments = course.Comments.AsQueryable();
+
+            return _Mapper.Map<IEnumerable<CourseComment>, IEnumerable<CourseCommentDTO>>(comments);
         }
 
         public int DisableCourseComment(int CourseId, int CommentId)
         {
             CourseComment comment = Find(i => i.Id.Equals(CourseId)).Comments.Where(i => i.Id.Equals(CommentId)).First();
-            comment.StatusId = (int) Domain.Enums.Status.Disabled;
+            comment.StatusId = (int)Core.Enums.Status.Disabled;
 
             return _Context.SaveChanges();
         }

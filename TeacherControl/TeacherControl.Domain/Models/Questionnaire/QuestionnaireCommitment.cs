@@ -7,9 +7,9 @@ namespace TeacherControl.Domain.Models
     public class QuestionnaireCommitment
     {
         public int QuestionnaireId { get; set; }
-        public Questionnaire Questionnaire{ get; set; }
+        public virtual Questionnaire Questionnaire{ get; set; }
 
         public int CommitmentId { get; set; }
-        public Commitment Commitment { get; set; }
+        public virtual Commitment Commitment { get; set; }
     }
 }

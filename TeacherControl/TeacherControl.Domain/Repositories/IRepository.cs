@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using TeacherControl.Domain.Models;
+using TeacherControl.Core.Models;
 
 namespace TeacherControl.Domain.Repositories
 {

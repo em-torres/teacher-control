@@ -13,7 +13,7 @@ namespace TeacherControl.Domain.Models
         public double Points { get; set; }
 
         public int StatusId { get; set; }
-        public Status Status { get; set; }
+        public virtual Status Status { get; set; }
 
         public int CourseId { get; set; }
         public virtual Course Course { get; set; }

@@ -5,8 +5,27 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="DTOs\**" />
+    <Compile Remove="Enums\**" />
+    <Compile Remove="Models\**" />
+    <Compile Remove="Queries\**" />
+    <EmbeddedResource Remove="DTOs\**" />
+    <EmbeddedResource Remove="Enums\**" />
+    <EmbeddedResource Remove="Models\**" />
+    <EmbeddedResource Remove="Queries\**" />
+    <None Remove="DTOs\**" />
+    <None Remove="Enums\**" />
+    <None Remove="Models\**" />
+    <None Remove="Queries\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="8.0.0" />
     <PackageReference Include="FluentValidation" Version="8.1.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TeacherControl.Core\TeacherControl.Core.csproj" />
   </ItemGroup>
 
 </Project>

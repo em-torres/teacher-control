@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using TeacherControl.Domain.DTOs;
+using TeacherControl.Core.DTOs;
 
 namespace TeacherControl.Domain.DTOsValidations
 {
