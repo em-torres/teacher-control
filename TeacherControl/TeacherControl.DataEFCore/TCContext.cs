@@ -4,6 +4,7 @@ using TeacherControl.Core.Models;
 using System.Threading;
 using System.Threading.Tasks;
 using TeacherControl.Domain.Services;
+using TeacherControl.Common.Enums;
 
 namespace TeacherControl.DataEFCore
 {
@@ -16,8 +17,8 @@ namespace TeacherControl.DataEFCore
         #region Assignment DB Sets
         public virtual DbSet<Assignment> Assignments { get; set; }
         public virtual DbSet<AssignmentStudentPoint> AssignmentStudentPoints { get; set; }
-        public virtual DbSet<AssignmentGroup> AssignmentGroups { get; set; }
         public virtual DbSet<AssignmentTag> AssignmentTags { get; set; }
+        public virtual DbSet<AssignmentComment> AssignmentComments { get; set; }
         #endregion
 
         #region Questionnaire DB Sets
@@ -40,7 +41,6 @@ namespace TeacherControl.DataEFCore
         #region Courses
         public virtual DbSet<Course> Courses { get; set; }
         public virtual DbSet<CourseTag> CourseTags { get; set; }
-        public virtual DbSet<CourseComment> CourseComments { get; set; }
         public virtual DbSet<CourseUserCredit> CourseUserCredits { get; set; }
         #endregion
 
@@ -53,7 +53,7 @@ namespace TeacherControl.DataEFCore
             _Options = options;
             _UserService = userService;
         }
-        
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder
@@ -63,16 +63,11 @@ namespace TeacherControl.DataEFCore
 
         public override int SaveChanges()
         {
-            if (ChangeTracker.HasChanges())
-            {
-                ChangeTracker
-                    .ApplyAuditInformation(_UserService);
+            ChangeTracker
+                .ApplyAuditInformation(_UserService);
 
-                return base.SaveChanges();
-            }
-            //return no-change enum value
-
-            return 0;
+            base.SaveChanges();
+            return (int)TransactionStatus.SUCCESS;
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
@@ -82,11 +77,11 @@ namespace TeacherControl.DataEFCore
                 ChangeTracker
                     .ApplyAuditInformation(_UserService);
 
-                return base.SaveChangesAsync();
+                base.SaveChangesAsync(cancellationToken);
+                return Task.FromResult((int)TransactionStatus.SUCCESS);
             }
 
-            //return no-change enum value
-            return Task.FromResult(0);
+            return Task.FromResult((int) TransactionStatus.UNCHANGED);
         }
     }
 }

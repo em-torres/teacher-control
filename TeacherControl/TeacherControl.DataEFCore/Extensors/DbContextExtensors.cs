@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using TeacherControl.Core.AuditableModels;
+using TeacherControl.Core.Enums;
 using TeacherControl.Domain.Services;
 
 namespace TeacherControl.DataEFCore.Extensors
@@ -10,22 +11,32 @@ namespace TeacherControl.DataEFCore.Extensors
     {
         public static ChangeTracker ApplyAuditInformation(this ChangeTracker tracker, IUserService userService)
         {
-            string username = userService.GetUsername();
-
             if (tracker.HasChanges())
             {
-                foreach(EntityEntry entry in tracker.Entries())
+                string username = userService.GetUsername();
+                foreach (EntityEntry entry in tracker.Entries())
                 {
-                    if (entry.State == EntityState.Added)
+                    if (entry.Entity is IModificationAudit)
                     {
-                        entry.CurrentValues[nameof(IModificationAudit.CreatedBy)] = username;
-                        entry.CurrentValues[nameof(IModificationAudit.CreatedDate)] = DateTime.UtcNow;
+                        if (entry.State == EntityState.Added)
+                        {
+                            entry.CurrentValues[nameof(IModificationAudit.CreatedBy)] = username;
+                            entry.CurrentValues[nameof(IModificationAudit.CreatedDate)] = DateTime.UtcNow;
+                        }
+                        else if (entry.State == EntityState.Modified)
+                        {
+                            entry.CurrentValues[nameof(IModificationAudit.UpdatedBy)] = username;
+                            entry.CurrentValues[nameof(IModificationAudit.UpdatedDate)] = DateTime.UtcNow;
+                        }
                     }
-                    else if(entry.State == EntityState.Modified)
-                    {
-                        entry.CurrentValues[nameof(IModificationAudit.UpdatedBy)] = username;
-                        entry.CurrentValues[nameof(IModificationAudit.UpdatedBy)] = DateTime.UtcNow;
-                    }
+
+                    //if (entry.Entity is IStatusAudit)
+                    //{
+                    //    if (entry.State == EntityState.Added)
+                    //    {
+                    //        entry.CurrentValues[nameof(IStatusAudit.StatusId)] = (int)Status.Active;
+                    //    }
+                    //}
                 }
             }
 

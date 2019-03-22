@@ -32,7 +32,11 @@ namespace TeacherControl.DataEFCore.Extensors
             return courses;
         }
 
-        public static IQueryable<Course> GetByTags(this IQueryable<Course> courses, IEnumerable<string> Tags) =>
-            Tags.Any() ? courses.Where(i => i.Tags.Select(t => t.Name).SequenceEqual(Tags)) : courses;
+        public static IQueryable<Course> GetByTags(this IQueryable<Course> courses, IEnumerable<string> Tags)
+        {
+            if (Tags is null) return courses;
+
+            return Tags.Any() ? courses.Where(i => i.Tags.Select(t => t.Name).SequenceEqual(Tags)) : courses;
+        }
     }
 }

@@ -10,6 +10,7 @@ using TeacherControl.Core.DTOs;
 using TeacherControl.Core.Models;
 using TeacherControl.Core.Queries;
 using TeacherControl.Domain.Repositories;
+using TeacherControl.Common.Enums;
 
 namespace TeacherControl.DataEFCore.Repositories
 {
@@ -20,130 +21,104 @@ namespace TeacherControl.DataEFCore.Repositories
         {
         }
 
-        public Task<IEnumerable<AssignmentDTO>> GetByFilters(AssignmentQuery filters)
+        public IEnumerable<AssignmentDTO> GetByFilters(AssignmentQuery filters)
         {
             IQueryable<Assignment> assignments = _Context.Assignments
                 .GetByTitle(filters.Title)
                 .GetByDatesRange(filters.StartDate, filters.EndDate)
                 .GetByPointsRange(filters.StartPoints, filters.StartPoints)
                 .GetByTags(filters.Tags)
-                .GetByGroups(filters.Groups)
                 .Pagination(filters.Page, filters.PageSize);
 
-            return Task.Run(() => _Mapper.Map<Assignment[], IEnumerable<AssignmentDTO>>(assignments.ToArray()));
+            return _Mapper.Map<Assignment[], IEnumerable<AssignmentDTO>>(assignments.ToArray());
         }
 
-        public int Add(AssignmentDTO dto, string createBy)
+        public int Add(AssignmentDTO dto)
         {
             Assignment model = _Mapper.Map<AssignmentDTO, Assignment>(dto);
-            int statusID = (int) Core.Enums.Status.Active;
-
-            IEnumerable<string> tags = dto.Tags.Select(t => t.ToLower());
-            model.Tags = tags.Select(t => new AssignmentTag { Name = t }).ToList();
-
-            IEnumerable<string> groups = dto.Groups.Select(t => t.ToLower());
-            model.Groups = groups.Select(t =>
-            {
-                IEnumerable<Core.Models.Group> finds = _Context.Groups.Where(i =>
-                    i.Name.ToLower().Equals(t) &&
-                    i.StatusId.Equals(statusID));
-
-                return new AssignmentGroup { Group = finds.First() };
-            }).ToList();
-
-            model.CreatedBy = createBy;
-            model.UpdatedDate = DateTime.UtcNow;
-
             model.Counts = new AssignmentCounts { UpvotesCount = 0, ViewsCount = 0 };
 
             return Add(model);
         }
 
-        public int DeleteById(int ID, string updatedBy)
+        public int DeleteById(int ID)
         {
-            Assignment assignment = _Context.Assignments.Where(i => i.Id.Equals(ID)).First();
-
-            assignment.UpdatedBy = updatedBy;
-            assignment.UpdatedDate = DateTime.UtcNow;
-
-            return _Context.SaveChanges();
-        }
-
-        public int DeleteByTokenId(string tokenID, string updatedBy)
-        {
-            Assignment assignment = _Context.Assignments.Where(i => i.HashIndex.Equals(tokenID)).First();
-
-            assignment.UpdatedBy = updatedBy;
-            assignment.UpdatedDate = DateTime.UtcNow;
-
-            return _Context.SaveChanges();
-        }
-
-        public int Update(int id, AssignmentDTO dto, string updateBy)
-        {
-            Assignment old = _Context.Assignments.Where(i => i.Id.Equals(id)).First();
-            Assignment newModel = _Mapper.Map<AssignmentDTO, Assignment>(dto);
-
-            newModel.UpdatedDate = DateTime.UtcNow;
-
-            newModel.UpdatedBy = updateBy;
-            newModel.UpdatedDate = DateTime.UtcNow;
-
-            //Update(i => i.Id.Equals(id), newModel);
-
-            return _Context.SaveChanges();
-        }
-
-        public int UpdateTags(int id, IEnumerable<string> tags, string updateBy)
-        {
-            Assignment assignment = _Context.Assignments.Where(i => i.Equals(id)).First();
-
-            tags.ToList().ForEach(i =>
+            Assignment assignment = Find(i => i.Id.Equals(ID));
+            if (assignment.Id > 0)
             {
-                if (assignment.Tags.Any(t => t.Name.ToLower().Equals(i.ToLower())))
-                    assignment.Tags.Add(new AssignmentTag { Name = i });
-            });
+                assignment.StatusId = (int)Core.Enums.Status.Deleted;
+                return _Context.SaveChanges();
+            }
 
-            assignment.UpdatedBy = updateBy;
-            assignment.UpdatedDate = DateTime.UtcNow;
+            return (int)TransactionStatus.ENTITY_NOT_FOUND;
+        }
+
+        public int DeleteByTokenId(string tokenID)
+        {
+            Assignment assignment = Find(i => i.HashIndex.Equals(tokenID));
+            if (assignment.Id > 0)
+            {
+                assignment.StatusId = (int)Core.Enums.Status.Deleted;
+
+                return _Context.SaveChanges();
+            }
+
+            return (int)TransactionStatus.ENTITY_NOT_FOUND;
+        }
+
+        public int Update(int id, AssignmentDTO dto)
+        {
+            Update(i => i.Id.Equals(id), dto);
 
             return _Context.SaveChanges();
         }
 
-        public int UpdateGroups(int id, IEnumerable<string> groups, string updateBy)
+        public int UpdateTags(int id, IEnumerable<string> tags)
         {
-            Assignment assignment = _Context.Assignments.Where(i => i.Equals(id)).First();
-
-            groups.ToList().ForEach(i =>
+            Assignment assignment = Find(i => i.Equals(id));
+            if (assignment.Id > 0)
             {
-                Core.Models.Group group = _Context.Groups.Where(g => g.Name.ToLower().Equals(i.ToLower())).First();
-                if (assignment.Groups.Any(t => t.Group.Name.ToLower().Equals(i.ToLower())))
-                    assignment.Groups.Add(new AssignmentGroup { Group = group });
-            });
+                tags.ToList().ForEach(i =>
+                {
+                    if (assignment.Tags.Any(t => t.Name.ToLower().Equals(i.ToLower())) == false)
+                    {
+                        assignment.Tags.Add(new AssignmentTag { Name = i });
+                    }
+                });
 
-            assignment.UpdatedBy = updateBy;
-            assignment.UpdatedDate = DateTime.UtcNow;
+                return _Context.SaveChanges();
+            }
 
-            return _Context.SaveChanges();
+            return (int)TransactionStatus.ENTITY_NOT_FOUND;
         }
 
         public int UpdateUpvoteCount(int id, int value)
         {
-            Assignment assignment = _Context.Assignments.Where(i => i.Equals(id)).First();
-            assignment.Counts.UpvotesCount = assignment.Counts.UpvotesCount + value;
+            Assignment assignment = Find(i => i.Equals(id));
+            if (assignment.Id > 0)
+            {
+                assignment.Counts.UpvotesCount = assignment.Counts.UpvotesCount + value;
 
-            return _Context.SaveChanges();
+                return _Context.SaveChanges();
+            }
+
+            return (int)TransactionStatus.ENTITY_NOT_FOUND;
         }
 
         public int UpdateViewsCount(int id, int value)
         {
-            Assignment assignment = _Context.Assignments.Where(i => i.Equals(id)).First();
-            assignment.Counts.ViewsCount = assignment.Counts.ViewsCount + value;
+            Assignment assignment = Find(i => i.Equals(id));
+            if (assignment.Id > 0)
+            {
+                assignment.Counts.ViewsCount = assignment.Counts.ViewsCount + value;
 
-            return _Context.SaveChanges();
+                return _Context.SaveChanges();
+            }
+
+            return (int) TransactionStatus.ENTITY_NOT_FOUND;
         }
 
-        public Task<IEnumerable<AssignmentResultDTO>> GetQuestionnaireResults(int assignmentId, string username)
+        public IEnumerable<AssignmentResultDTO> GetQuestionnaireResults(int assignmentId, string username)
         {
             //Func<IEnumerable<AssignmentResultDTO>> action = () => {
             //    int userID = _Context.Users.Where(i => i.Username.Equals(username)).First().Id;
@@ -158,6 +133,88 @@ namespace TeacherControl.DataEFCore.Repositories
             //return Task.Factory.StartNew(action);
 
             throw new NotImplementedException();
+        }
+
+        public AssignmentDTO GetById(int assignmentId)
+        {
+            Assignment assignment = Find(i => i.Id.Equals(assignmentId));
+            return _Mapper.Map<Assignment, AssignmentDTO>(assignment);
+        }
+
+        public int AddComment(int assignmentId, AssignmentCommentDTO dto)
+        {
+            Assignment assignment = Find(i => i.Id.Equals(assignmentId));
+
+            if (assignment.Id > 0)
+            {
+                AssignmentComment comment = _Mapper.Map<AssignmentCommentDTO, AssignmentComment>(dto);
+                assignment.Comments.Add(comment);
+
+                return _Context.SaveChanges();
+            }
+
+            return (int)TransactionStatus.ENTITY_NOT_FOUND;
+        }
+
+        public int UpdateComment(int assignmentId, int commentId, AssignmentCommentDTO dto)
+        {
+            Assignment assignment = Find(i => i.Id.Equals(assignmentId));
+            AssignmentComment comment = _Context.AssignmentComments.Where(i => i.Id.Equals(commentId)).First();
+
+            if (assignment.Id > 0 && comment.Id > 0)
+            {
+                _Context.Entry(comment).CurrentValues.SetValues(dto);
+                return _Context.SaveChanges();
+            }
+
+            return (int)TransactionStatus.ENTITY_NOT_FOUND;
+        }
+
+        public int RemoveAssignmentComment(int assignmentId, int commentId)
+        {
+            Assignment assignment = Find(i => i.Id.Equals(assignmentId));
+            AssignmentComment comment = _Context.AssignmentComments.Where(i => i.Id.Equals(commentId)).First();
+            comment.StatusId = (int)Core.Enums.Status.Deleted;
+
+            if (assignment.Id > 0 && comment.Id > 0)
+            {
+                return _Context.SaveChanges();
+            }
+
+            return (int)TransactionStatus.ENTITY_NOT_FOUND;
+        }
+
+        public IEnumerable<AssignmentCommentDTO> GetAllAssignmentComments(int assignmentId, AssignmentCommentQuery Query)
+        {
+            Assignment assignment = Find(i => i.Id.Equals(assignmentId));
+            IQueryable<AssignmentComment> comments = assignment.Comments.AsQueryable();
+
+            return _Mapper.Map<IEnumerable<AssignmentComment>, IEnumerable<AssignmentCommentDTO>>(comments);
+        }
+
+        public int DisableAssignmentComment(int assignmentId, int CommentId)
+        {
+            AssignmentComment comment = Find(i => i.Id.Equals(assignmentId)).Comments.Where(i => i.Id.Equals(CommentId)).First();
+            if (comment.Id > 0)
+            {
+                comment.StatusId = (int)Core.Enums.Status.Disabled;
+                return _Context.SaveChanges();
+            }
+
+            return (int)TransactionStatus.ENTITY_NOT_FOUND;
+        }
+
+        public int UpdateUpvoteAssignmentComment(int assignmentId, int CommentId, int upvote)
+        {
+            AssignmentComment comment = Find(i => i.Id.Equals(assignmentId)).Comments.Where(i => i.Id.Equals(CommentId)).First();
+            if (comment.Id > 0)
+            {
+                comment.Upvote += upvote;
+
+                return _Context.SaveChanges();
+            }
+
+            return (int)TransactionStatus.ENTITY_NOT_FOUND;
         }
     }
 }

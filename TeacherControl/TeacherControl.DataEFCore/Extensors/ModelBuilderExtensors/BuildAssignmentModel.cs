@@ -56,18 +56,6 @@ namespace TeacherControl.DataEFCore.Extensors
             return builder;
         }
 
-        public static ModelBuilder BuildAssignmentGroup(this ModelBuilder modelBuilder)
-        {
-            EntityTypeBuilder<AssignmentGroup> model = modelBuilder.Entity<AssignmentGroup>();
-
-            modelBuilder.Entity<AssignmentGroup>().HasKey(t => new { t.GroupId, t.AssignmentId });
-
-            modelBuilder.Entity<AssignmentGroup>().HasOne(i => i.Group).WithMany(i => i.Assignments);
-            modelBuilder.Entity<AssignmentGroup>().HasOne(i => i.Assignment).WithMany(i => i.Groups);
-
-            return modelBuilder;
-        }
-
         public static ModelBuilder BuildAssignmentCounts(this ModelBuilder modelBuilder)
         {
             EntityTypeBuilder<AssignmentCounts> model = modelBuilder.Entity<AssignmentCounts>();
@@ -78,5 +66,34 @@ namespace TeacherControl.DataEFCore.Extensors
 
             return modelBuilder;
         }
+        public static ModelBuilder BuildAssignmentComment(this ModelBuilder builder)
+        {
+            EntityTypeBuilder<AssignmentComment> model = builder.Entity<AssignmentComment>();
+
+            model.Property(b => b.Title).IsRequired();
+            model.Property(b => b.Upvote).HasDefaultValue(0).IsRequired();
+            model.Property(b => b.Body).IsRequired();
+
+            model.HasIndex(b => b.StatusId).IsUnique(false);
+            model.HasIndex(b => b.AuthorId).IsUnique(false);
+
+            model.HasOne(b => b.Author)
+                .WithOne()
+                .HasForeignKey<AssignmentComment>(i => i.AuthorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            model.HasOne(b => b.Status)
+                .WithOne()
+                .HasForeignKey<AssignmentComment>(b => b.StatusId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            model
+                .HasOne(b => b.Assignment)
+                .WithMany(b => b.Comments)
+                .HasForeignKey(b => b.AssignmentId);
+
+            return builder;
+        }
+
     }
 }

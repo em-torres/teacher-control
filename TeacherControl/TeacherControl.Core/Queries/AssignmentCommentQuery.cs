@@ -4,7 +4,7 @@ using System.Text;
 
 namespace TeacherControl.Core.Queries
 {
-    public class CourseCommentQuery : BaseQuery
+    public class AssignmentCommentQuery : BaseQuery
     {
 
     }

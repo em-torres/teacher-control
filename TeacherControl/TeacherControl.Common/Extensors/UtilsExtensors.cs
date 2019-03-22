@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace TeacherControl.Common.Extensors
 {
@@ -22,5 +25,29 @@ namespace TeacherControl.Common.Extensors
             return DateTime.MinValue;
         }
 
+        public static JObject ToJson(this object obj)
+        {
+            try
+            {
+                return JObject.FromObject(obj);
+            } catch(Exception e)
+            {
+                //TODO: logger here
+                return null;
+            }
+        }
+
+        public static JArray ToJsonArray(this IEnumerable<object> array)
+        {
+            try
+            {
+                return JArray.FromObject(array);
+            }
+            catch (Exception e)
+            {
+                //TODO: logger here
+                return null;
+            }
+        }
     }
 }

@@ -4,7 +4,7 @@ using TeacherControl.Core.AuditableModels;
 
 namespace TeacherControl.Core.Models
 {
-    public class Assignment : IModificationAudit
+    public class Assignment : IModificationAudit, IStatusAudit
     {
         public int Id { get; set; }
         public string Title { get; set; }
@@ -22,7 +22,7 @@ namespace TeacherControl.Core.Models
 
         public virtual AssignmentCounts Counts{ get; set; }
         public virtual ICollection<AssignmentTag> Tags { get; set; }
-        public virtual ICollection<AssignmentGroup> Groups { get; set; }
+        public virtual ICollection<AssignmentComment> Comments { get; set; }
         public virtual ICollection<Questionnaire> Questionnaires { get; set; }
 
         public DateTime CreatedDate { get; set; }

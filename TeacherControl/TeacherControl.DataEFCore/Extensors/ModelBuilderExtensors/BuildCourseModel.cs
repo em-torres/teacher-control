@@ -1,9 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using TeacherControl.Core.Models;
+using TeacherControl.DataEFCore.Generators;
 
 namespace TeacherControl.DataEFCore.Extensors
 {
@@ -16,7 +14,7 @@ namespace TeacherControl.DataEFCore.Extensors
             model.HasKey(b => b.Id);
 
             model.Property(b => b.Name).IsRequired().HasMaxLength(150);
-            model.Property(b => b.CodeIdentifier).IsRequired().HasMaxLength(15);
+            model.Property(b => b.CodeIdentifier).IsRequired().HasValueGenerator<TokenGuidGenerator>().HasMaxLength(15);
             model.Property(b => b.Description).IsRequired(); //TODO: max length TBD
             model.Property(b => b.Credits).IsRequired();
             model.Property(b => b.StartDate).IsRequired();
@@ -53,30 +51,6 @@ namespace TeacherControl.DataEFCore.Extensors
             model.HasOne(b => b.Course);
 
             return builder;
-        }
-
-        public static ModelBuilder BuildCourseComment(this ModelBuilder builder)
-        {
-            EntityTypeBuilder<CourseComment> model = builder.Entity<CourseComment>();
-
-            model.Property(b => b.Title).IsRequired();
-            model.Property(b => b.Upvote).HasDefaultValue(0).IsRequired();
-            model.Property(b => b.Body).IsRequired();
-            model.Property(b => b.Body).IsRequired();
-
-            model.HasIndex(b => b.StatusId).IsUnique(false);
-
-            model.HasOne(b => b.Author);
-            model.HasOne(b => b.Course);
-
-            model.HasOne(b => b.Status)
-                .WithOne()
-                .HasForeignKey<CourseComment>(b => b.StatusId).OnDelete(DeleteBehavior.Restrict);
-
-            model.HasOne(b => b.Course).WithMany(b => b.Comments).HasForeignKey(b => b.CourseId);
-
-            return builder;
-
         }
     }
 }

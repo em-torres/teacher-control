@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using TeacherControl.API.Extensors;
+using TeacherControl.Common.Enums;
+using TeacherControl.Common.Extensors;
 using TeacherControl.Core.DTOs;
 using TeacherControl.Core.Queries;
 using TeacherControl.Domain.Repositories;
@@ -23,46 +25,57 @@ namespace TeacherControl.API.Controllers
         [HttpGet]
         public IActionResult GetAll([FromQuery] AssignmentQuery filters)
         {
-            return this.Ok(() => JArray.FromObject(_AssignmentRepo.GetByFilters(filters).Result));
+            return this.Ok(() =>
+            {
+                JObject result = new JObject
+                {
+                    ["filters"] = filters.ToJson(),
+                    ["results"] = _AssignmentRepo.GetByFilters(filters).ToJsonArray()
+                };
+
+                return result;
+            });
         }
 
         [HttpPost]
-        public IActionResult AddAssignment([FromBody] AssignmentDTO dto)
+        public IActionResult AddAssignment([FromBody] JObject json)
         {
-            JObject json = new JObject();
+            if (json is null)
+            {
+                return BadRequest("The Json Body is Empty");
+            }
+            return this.Created(() =>
+            {
+                AssignmentDTO dto = json.ToObject<AssignmentDTO>();
+                JObject result = _AssignmentRepo.Add(dto).Equals(TransactionStatus.SUCCESS)
+                    ? dto.ToJson()
+                    : new JObject();
 
-            if (_AssignmentRepo.Add(dto, this.GetUsername()) > 0)
-                json = JObject.FromObject(dto);
-
-            return this.Ok(() => json);
+                return result;
+            });
         }
 
         [HttpDelete, Route("{assignmentId:int:min(1)}")]
         public IActionResult DeleteAssignment([FromRoute] int assignmentId)
         {
-            return this.NoContent(() => _AssignmentRepo.DeleteById(assignmentId, this.GetUsername()) > 0);
+            return this.NoContent(() => _AssignmentRepo.DeleteById(assignmentId).Equals(TransactionStatus.SUCCESS));
         }
 
         [HttpDelete, Route("{assignmentId:length(12, 150)}")] //TODO: validate this range thought the DB
         public IActionResult DeleteAssignment([FromRoute] string assignmentId)
         {
-            if (!string.IsNullOrWhiteSpace(assignmentId))
+            if (Regex.IsMatch(assignmentId.ToLower(), @"([a-f0-9]{12})$"))
             {
-                if (Regex.IsMatch(assignmentId.ToLower(), @"([a-f0-9]{12})$"))
-                {
-                    return this.NoContent(() => _AssignmentRepo.DeleteByTokenId(assignmentId, this.GetUsername()) > 0);
-                }
+                return this.NoContent(() => _AssignmentRepo.DeleteByTokenId(assignmentId).Equals(TransactionStatus.SUCCESS));
             }
+
             return BadRequest("The Request has an invalid ID");
         }
 
         [HttpPut, Route("{assignmentId:int:min(1)}")]
         public IActionResult UpdateAssignment([FromQuery] int assignmentId, [FromBody] AssignmentDTO dto)
         {
-            lock (new object())
-            {
-                return this.NoContent(() => _AssignmentRepo.Update(assignmentId, dto, this.GetUsername()) > 0);
-            }
+            return this.NoContent(() => _AssignmentRepo.Update(assignmentId, dto).Equals(TransactionStatus.SUCCESS));
         }
 
         [HttpPatch, Route("{assignmentId:int:min(1)}/update-tags")]
@@ -70,45 +83,11 @@ namespace TeacherControl.API.Controllers
         {
             if (tags != null && tags.Count() > 0)
             {
-                lock (new object())
-                {
                     tags = tags.Where(i => Regex.IsMatch(i, @"[\w\-#]{3,30}"));
-                    return this.NoContent(() => _AssignmentRepo.UpdateTags(assignmentId, tags, this.GetUsername()) > 0);
-                }
-
+                    return this.NoContent(() => _AssignmentRepo.UpdateTags(assignmentId, tags).Equals(TransactionStatus.SUCCESS));
             }
 
-            return BadRequest("The JsonBody is invalid");
-        }
-
-        [HttpPatch, Route("{assignmentId:int:min(1)}/update-groups")]
-        public IActionResult UpdateAssigmentGroups([FromQuery] int assignmentId, [FromBody] IEnumerable<string> groups)
-        {
-            if (groups != null && groups.Count() > 0)
-            {
-                lock (new object())
-                {
-                    groups = groups.Where(i => Regex.IsMatch(i, @"[\w\-#@]{3,60}"));
-                    return this.NoContent(() => _AssignmentRepo.UpdateGroups(assignmentId, groups, this.GetUsername()) > 0);
-                }
-
-            }
-
-            return BadRequest("The Id or the JsonBody are invalid");
-        }
-
-        [HttpPatch, Route("{assignmentId:int:min(1)}/upvote")]
-        public IActionResult AddAssignmentUpvote([FromQuery] int assignmentId)
-        {
-            int upvote = 1;
-            return this.NoContent(() => _AssignmentRepo.UpdateUpvoteCount(assignmentId, upvote) > 0);
-        }
-
-        [HttpPatch, Route("{assignmentId:int:min(1)}/downvote")]
-        public IActionResult DownAssignmentUpvote([FromQuery] int assignmentId)
-        {
-            int upvote = -1;
-            return this.NoContent(() => _AssignmentRepo.UpdateUpvoteCount(assignmentId, upvote) > 0);
+            return BadRequest("The Json Body is invalid");
         }
 
         //TODO: get if the user successfully complete the assignment
@@ -121,5 +100,56 @@ namespace TeacherControl.API.Controllers
 
         //TODO: get the questionnaire result set
 
+        [HttpGet, Route("{assignmentId:int:min(1)}/comments")]
+        public IActionResult GetCourseComments([FromRoute] int courseId, [FromQuery] AssignmentCommentQuery query)
+        {
+            return this.Ok(() =>
+            {
+                IEnumerable<AssignmentCommentDTO> data = _AssignmentRepo.GetAllAssignmentComments(courseId, query);
+                query.PageSize = query.PageSize <= 0 ? 50 : query.PageSize;
+                query.Page = query.Page <= 0 ? 1 : query.Page;
+
+                return new { query, data }.ToJson();
+            });
+        }
+
+        [HttpPost, Route("{assignmentId:int:min(1)}/comments")]
+        public IActionResult AddCourseComment([FromRoute] int courseId, [FromBody] AssignmentCommentDTO dto)
+        {
+            int successTransactionValue = (int)TransactionStatus.SUCCESS;
+
+            return this.Created(() =>
+                _AssignmentRepo.AddComment(courseId, dto).Equals(successTransactionValue)
+                ? dto.ToJson()
+                : new JObject());
+        }
+
+        [HttpPost, Route("{assignmentId:int:min(1)}/comments/{commentId:int:min(1)}/disable")]
+        public IActionResult DisableCourseComment([FromRoute] int courseId, [FromRoute] int commentId)
+        {
+            int successTransactionValue = (int)TransactionStatus.SUCCESS;
+
+            return this.NoContent(() => _AssignmentRepo.DisableAssignmentComment(courseId, commentId).Equals(successTransactionValue));
+        }
+
+        [HttpDelete, Route("{assignmentId:int:min(1)}/comments/{commentId:int:min(1)}")]
+        public IActionResult RemoveCourseComment([FromRoute] int courseId, [FromRoute] int commentId)
+        {
+            int successTransactionValue = (int)TransactionStatus.SUCCESS;
+
+            return this.NoContent(() => _AssignmentRepo.RemoveAssignmentComment(courseId, commentId).Equals(successTransactionValue));
+        }
+
+        [HttpPut, Route("{assignmentId:int:min(1)}/comments/{commentId:int:min(1)}")]
+        public IActionResult UpdateCourseComment([FromRoute] int courseId, [FromRoute] int commentId, [FromBody] JObject json)
+        {
+            int successTransactionValue = (int)TransactionStatus.SUCCESS;
+
+            return this.NoContent(() =>
+            {
+                AssignmentCommentDTO dto = json.ToObject<AssignmentCommentDTO>();
+                return _AssignmentRepo.UpdateComment(courseId, commentId, dto).Equals(successTransactionValue);
+            });
+        }
     }
 }

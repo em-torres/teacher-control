@@ -31,16 +31,18 @@ namespace TeacherControl.DataEFCore.Extensors
 
             IEnumerable<Course> courses = CourseFactoryData.CreateCourseList(50).Select((e, i) => { e.StatusId = (i % 7) + 1; return e; });
             IEnumerable<CourseTag> courseTags = CourseFactoryData.CreateCourseTagList(50).Select((e, i) => { e.CourseId = i % 50 + 1; return e; });
-
+            
             IEnumerable<Assignment> assignments = AssignmentFactoryData.CreateAssignmentList(120).Select((e, i) => { e.CourseId = i % 50 + 1; e.StatusId = (i % 7) + 1; return e; });
-            //IEnumerable<AssignmentCounts> assignmentCounts = AssignmentFactoryData.CreateAssignmentCountList(120).Select((e, i) => { e.AssignmentId = i + 1; return e; });
+            IEnumerable<AssignmentComment> assignmentComments = AssignmentFactoryData
+                .CreateAssignmentCommentList(250)
+                .Select((e, i) => { e.AssignmentId = i % 50 + 1; e.AuthorId = i % 100 + 1; e.StatusId = i % 7 + 1; return e; });
 
             builder
                 .Entity<Status>(opt => opt.HasData(statuses))
                 //.Entity<Group>(opt => opt.HasData(groups))
                 .Entity<Course>(opt => opt.HasData(courses))
                 .Entity<Assignment>(opt => opt.HasData(assignments))
-                //.Entity<AssignmentCounts>(opt => opt.HasData(assignmentCounts))
+                .Entity<AssignmentComment>(opt => opt.HasData(assignmentComments))
                 .Entity<User>(opt => opt.HasData(users));
         }
     }

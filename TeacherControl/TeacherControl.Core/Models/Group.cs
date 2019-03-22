@@ -13,7 +13,6 @@ namespace TeacherControl.Core.Models
 
         public virtual ICollection<GroupPrivilege> Privileges { get; set; }
         public virtual ICollection<UserGroup> Users { get; set; }
-        public virtual ICollection<AssignmentGroup> Assignments { get; set; }
 
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }

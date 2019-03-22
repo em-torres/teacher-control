@@ -19,7 +19,6 @@ namespace TeacherControl.Domain.DTOsValidations
             RuleFor(m => m.Points).GreaterThan(0);
 
             RuleForEach(m => m.Tags).NotEmpty().MinimumLength(5).MaximumLength(30);
-            RuleForEach(m => m.Groups).NotEmpty().MinimumLength(5).MaximumLength(50);
 
             DatesErrorMessage = "The Start Date should be less than the End Date value";
             RuleFor(m => DateTime.Compare(m.StartDate, m.EndDate) <= 0).Equal(true).WithMessage(DatesErrorMessage);

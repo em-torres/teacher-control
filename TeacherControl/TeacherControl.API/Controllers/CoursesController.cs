@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using TeacherControl.API.Extensors;
+using TeacherControl.Common.Enums;
+using TeacherControl.Common.Extensors;
 using TeacherControl.Core.DTOs;
 using TeacherControl.Core.Queries;
 using TeacherControl.Domain.Repositories;
@@ -30,12 +30,18 @@ namespace TeacherControl.API.Controllers
                 filtersDto.Page = filtersDto.Page <= 0 ? 1 : filtersDto.Page;
                 JObject json = new JObject()
                 {
-                    ["filters"] = JObject.FromObject(filtersDto),
-                    ["results"] = JArray.FromObject(data),
+                    ["filters"] = filtersDto.ToJson(),
+                    ["results"] = data.ToJsonArray(),
                 };
 
                 return json;
             });
+        }
+
+        [HttpGet, Route("{courseId:int:min(1)}")]
+        public IActionResult GetCourseById([FromRoute] int courseId)
+        {
+            return this.Ok(() => _CourseRepo.GetById(courseId).ToJson());
         }
 
         [HttpPost]
@@ -50,71 +56,29 @@ namespace TeacherControl.API.Controllers
             dto.Status = Core.Enums.Status.Active;
 
             return this.Created(() =>
-                _CourseRepo.Add(dto, this.GetUsername()) > 0
-                    ? JObject.FromObject(dto)
-                    : new JObject());
+            {
+                JObject result = _CourseRepo.Add(dto).Equals((int)TransactionStatus.SUCCESS)
+                        ? dto.ToJson()
+                        : new JObject();
+
+                return result;
+            });
         }
 
         [HttpDelete, Route("{courseId:int:min(1)}")]
         public IActionResult DeleteCourse([FromRoute] int courseId)
         {
-            return this.NoContent(() => _CourseRepo.Remove(courseId, this.GetUsername()) > 0);
+            int successTransactionValue = (int)TransactionStatus.SUCCESS;
+            return this.NoContent(() => _CourseRepo.Remove(courseId).Equals(successTransactionValue));
         }
 
         [HttpPut, Route("{courseId:int:min(1)}")]
         public IActionResult UpdateCourse([FromRoute] int courseId, [FromBody] JObject json)
         {
+            int successTransactionValue = (int)TransactionStatus.SUCCESS;
             CourseDTO dto = json.ToObject<CourseDTO>();
 
-            return this.NoContent(() => _CourseRepo.Update(courseId, dto, "test") > 0);
-        }
-
-        [HttpGet, Route("{courseId:int:min(1)}/comments")]
-        public IActionResult GetCourseComments([FromRoute] int courseId, [FromQuery] CourseCommentQuery query)
-        {
-            return this.Ok(() => {
-                IEnumerable<CourseCommentDTO> data = _CourseRepo.GetAllCourseComments(courseId, query);
-                query.PageSize = query.PageSize <= 0 ? 50 : query.PageSize;
-                query.Page = query.Page <= 0 ? 1 : query.Page;
-
-                return JObject.FromObject(new { query, data });                
-            });
-        }
-
-        [HttpPost, Route("{courseId:int:min(1)}/comments")]
-        public IActionResult AddCourseComment([FromRoute] int courseId, [FromBody] CourseCommentDTO dto)
-        {
-            return this.Created(() =>
-                _CourseRepo.AddComment(courseId, dto, this.GetUsername()) > 0
-                ? JObject.FromObject(dto)
-                : new JObject());
-        }
-
-        [HttpPost, Route("{courseId:int:min(1)}/comments/{commentId:int:min(1)}")]
-        public IActionResult DisableCourseComment([FromRoute] int courseId, [FromRoute] int commentId)
-        {
-            return this.NoContent(() => _CourseRepo.DisableCourseComment(courseId, commentId) > 0);
-        }
-
-        [HttpPut, Route("{courseId:int:min(1)}/comments/{commentId:int:min(1)}")]
-        public IActionResult UpdateCourseComment([FromRoute] int courseId, [FromRoute] int commentId, [FromBody] CourseCommentDTO dto)
-        {
-            return this.NoContent(() => _CourseRepo.UpdateComment(courseId, dto, this.GetUsername()) > 0);
-        }
-
-
-        [HttpPatch, Route("{courseId:int:min(1)}/comments/{commentId:int:min(1)}")]
-        public IActionResult UpVoteCourseComments([FromRoute] int courseId, [FromRoute] int commentId)
-        {
-            int upvote = 1;
-            return this.NoContent(() => _CourseRepo.UpdateUpvoteCourseComment(courseId, commentId, upvote) > 0);
-        }
-
-        [HttpPatch, Route("{courseId:int:min(1)}/comments/{commentId:int:min(1)}")]
-        public IActionResult DownVoteCourseComments([FromRoute] int courseId, [FromRoute] int commentId)
-        {
-            int downvote = -1;
-            return this.NoContent(() => _CourseRepo.UpdateUpvoteCourseComment(courseId, commentId, downvote) > 0);
+            return this.NoContent(() => _CourseRepo.Update(courseId, dto).Equals(successTransactionValue));
         }
     }
 }

@@ -11,12 +11,10 @@ namespace TeacherControl.Domain.AutoMapperProfiles
         public AssignmentProfile()
         {
             CreateMap<Assignment, AssignmentDTO>()
-                .ForMember(i => i.Tags, i => i.MapFrom(src => src.Tags.Select(t => t.Name)))
-                .ForMember(i => i.Groups, i => i.MapFrom(src => src.Groups.Select(t => t.Group.Name)));
+                .ForMember(i => i.Tags, i => i.MapFrom(src => src.Tags.Select(t => t.Name)));
 
             CreateMap<AssignmentDTO, Assignment>()
-                .ForMember(i => i.Tags, i => i.Ignore())
-                .ForMember(i => i.Groups, i => i.Ignore());
+                .ForMember(i => i.Tags, i => i.Ignore());
         }
     }
 }

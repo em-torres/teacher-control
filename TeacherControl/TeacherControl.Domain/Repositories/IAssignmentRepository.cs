@@ -8,16 +8,21 @@ namespace TeacherControl.Domain.Repositories
 {
     public interface IAssignmentRepository : IRepository<Assignment>
     {
-        int Add(AssignmentDTO dto, string createBy);
-        int DeleteById(int ID, string updatedBy);
-        int DeleteByTokenId(string tokenID, string updatedBy);
-        int Update(int id, AssignmentDTO dto, string updatedBy);
-        int UpdateTags(int id, IEnumerable<string> tags, string updateBy);
-        int UpdateGroups(int id, IEnumerable<string> groups, string updateBy);
-        int UpdateUpvoteCount(int id, int value);
-        int UpdateViewsCount(int id, int value);
+        int Add(AssignmentDTO dto);
+        int DeleteById(int ID);
+        int DeleteByTokenId(string tokenID);
+        int Update(int id, AssignmentDTO dto);
+        int UpdateTags(int id, IEnumerable<string> tags);
+        AssignmentDTO GetById(int assignmentId);
 
-        Task<IEnumerable<AssignmentDTO>> GetByFilters(AssignmentQuery dto);
-        Task<IEnumerable<AssignmentResultDTO>> GetQuestionnaireResults(int Id, string username);
+        IEnumerable<AssignmentDTO> GetByFilters(AssignmentQuery dto);
+        IEnumerable<AssignmentResultDTO> GetQuestionnaireResults(int Id, string username);
+
+        int AddComment(int assignmentId, AssignmentCommentDTO dto);
+        int UpdateComment(int assignmentId, int commentId, AssignmentCommentDTO dto);
+        int RemoveAssignmentComment(int assignmentId, int commentId);
+        IEnumerable<AssignmentCommentDTO> GetAllAssignmentComments(int assignmentId, AssignmentCommentQuery Query);
+        int DisableAssignmentComment(int assignmentId, int CommentId);
+        int UpdateUpvoteAssignmentComment(int assignmentId, int CommentId, int Upvote);
     }
 }

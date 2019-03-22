@@ -15,7 +15,6 @@ namespace TeacherControl.Domain.QueryValidations
             RuleFor(m => m.Status).IsInEnum();
 
             RuleFor(m => m.Tags).NotEmpty().MinimumLength(5).MaximumLength(30); //TODO: put a regex here to valid \w+,\w+
-            RuleFor(m => m.Groups).NotEmpty().MinimumLength(5).MaximumLength(50);
 
             string DatesErrorMessage = "The Start Date should be less than the End Date value";
             RuleFor(m => DateTime.Compare(m.StartDate, m.EndDate) <= 0).Equal(true).WithMessage(DatesErrorMessage);

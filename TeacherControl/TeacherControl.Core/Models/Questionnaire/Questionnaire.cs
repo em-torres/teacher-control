@@ -5,12 +5,14 @@ using TeacherControl.Core.AuditableModels;
 
 namespace TeacherControl.Core.Models
 {
-    public class Questionnaire : IModificationAudit
+    public class Questionnaire : IModificationAudit, IStatusAudit
     {
         public int Id { get; set; }
         public string Title { get; set; }
         public string Body { get; set; }
         public float Points { get; set; }
+
+        public int StatusId { get; set; }
         public virtual Status Status { get; set; }
 
         public int AssignmentId { get; set; }

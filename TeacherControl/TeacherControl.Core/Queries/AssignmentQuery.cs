@@ -12,7 +12,6 @@ namespace TeacherControl.Core.Queries
         public DateTime EndDate { get; set; }
         public float StartPoints { get; set; }
         public float EndPoints { get; set; }
-        public string Groups { get; set; }
         public string Types { get; set; }
         public string Tags { get; set; }
         public Status Status { get; set; }

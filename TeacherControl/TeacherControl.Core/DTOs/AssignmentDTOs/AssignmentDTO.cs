@@ -13,6 +13,5 @@ namespace TeacherControl.Core.DTOs
         public DateTime EndDate { get; set; }
 
         public IEnumerable<string> Tags { get; set; }
-        public IEnumerable<string> Groups { get; set; }
     }
 }
