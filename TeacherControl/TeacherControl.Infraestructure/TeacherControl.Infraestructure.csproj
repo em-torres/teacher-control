@@ -9,4 +9,9 @@
     <Folder Include="Redis\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TeacherControl.DataEFCore\TeacherControl.DataEFCore.csproj" />
+    <ProjectReference Include="..\TeacherControl.Domain\TeacherControl.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

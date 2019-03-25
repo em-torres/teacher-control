@@ -44,7 +44,10 @@ namespace TeacherControl.DataEFCore.Extensors
             model.Property(i => i.RightQuestionAnswerId).IsRequired();
 
             model.HasOne(q => q.QuestionAnswer);
-            model.HasOne(q => q.Commitment).WithMany(b => b.Matches).HasForeignKey(b => b.CommitmentId);
+            model.HasOne(q => q.Commitment)
+                .WithMany(b => b.Matches)
+                .HasForeignKey(b => b.CommitmentId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             return builder;
         }
@@ -58,7 +61,10 @@ namespace TeacherControl.DataEFCore.Extensors
             model.Property(i => i.UserResponse).IsRequired();
 
             model.HasOne(q => q.Question);
-            model.HasOne(q => q.Commitment).WithMany(b => b.OpenResponses).HasForeignKey(b => b.CommitmentId);
+            model.HasOne(q => q.Commitment)
+                .WithMany(b => b.OpenResponses)
+                .HasForeignKey(b => b.CommitmentId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             return builder;
         }

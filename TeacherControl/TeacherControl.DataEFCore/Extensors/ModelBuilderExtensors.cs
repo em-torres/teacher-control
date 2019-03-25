@@ -28,6 +28,7 @@ namespace TeacherControl.DataEFCore.Extensors
 
             modelBuilder
                 .BuildUser()
+                .BuildUserInfo()
                 .BuildUserCourse()
                 .BuildUserGroup();
 

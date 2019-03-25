@@ -16,6 +16,7 @@ namespace TeacherControl.API.Configurations
             services
                 .AddScoped<IAssignmentRepository, AssignmentRepository>()
                 .AddScoped<ICourseRepository, CourseRepository>()
+                .AddScoped<IUserRepository, UserRepository>()
                 .AddScoped<IQuestionnaireRepository, QuestionnaireRepository>();
 
             return services;

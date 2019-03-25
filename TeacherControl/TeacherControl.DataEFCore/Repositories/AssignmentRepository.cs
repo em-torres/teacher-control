@@ -1,16 +1,15 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using TeacherControl.Common.Enums;
 using TeacherControl.Common.Extensors;
-using TeacherControl.DataEFCore.Extensors;
 using TeacherControl.Core.DTOs;
 using TeacherControl.Core.Models;
 using TeacherControl.Core.Queries;
+using TeacherControl.DataEFCore.Extensors;
 using TeacherControl.Domain.Repositories;
-using TeacherControl.Common.Enums;
 
 namespace TeacherControl.DataEFCore.Repositories
 {
@@ -30,7 +29,7 @@ namespace TeacherControl.DataEFCore.Repositories
                 .GetByTags(filters.Tags)
                 .Pagination(filters.Page, filters.PageSize);
 
-            return _Mapper.Map<Assignment[], IEnumerable<AssignmentDTO>>(assignments.ToArray());
+            return _Mapper.Map<IEnumerable<Assignment>, IEnumerable<AssignmentDTO>>(assignments);
         }
 
         public int Add(AssignmentDTO dto)
@@ -46,7 +45,8 @@ namespace TeacherControl.DataEFCore.Repositories
             Assignment assignment = Find(i => i.Id.Equals(ID));
             if (assignment.Id > 0)
             {
-                assignment.StatusId = (int)Core.Enums.Status.Deleted;
+                _Context.Entry(assignment).State = EntityState.Deleted;
+
                 return _Context.SaveChanges();
             }
 
@@ -174,10 +174,10 @@ namespace TeacherControl.DataEFCore.Repositories
         {
             Assignment assignment = Find(i => i.Id.Equals(assignmentId));
             AssignmentComment comment = _Context.AssignmentComments.Where(i => i.Id.Equals(commentId)).First();
-            comment.StatusId = (int)Core.Enums.Status.Deleted;
 
             if (assignment.Id > 0 && comment.Id > 0)
             {
+                _Context.Entry(comment).State = EntityState.Deleted;
                 return _Context.SaveChanges();
             }
 
@@ -210,7 +210,6 @@ namespace TeacherControl.DataEFCore.Repositories
             if (comment.Id > 0)
             {
                 comment.Upvote += upvote;
-
                 return _Context.SaveChanges();
             }
 

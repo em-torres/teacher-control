@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using TeacherControl.Common.Enums;
@@ -43,11 +44,11 @@ namespace TeacherControl.DataEFCore.Repositories
         public int Remove(int id)
         {
             int removedStatusID = (int)Core.Enums.Status.Deleted;
-            Course course = _Context.Courses.Where(i => i.Id.Equals(id)).First();
+            Course course = Find(i => i.Id.Equals(id));
 
             if (course.StatusId != removedStatusID)
             {
-                course.Status = _Context.Statuses.Where(i => i.Id.Equals(removedStatusID)).First();
+                _Context.Entry(course).State = EntityState.Deleted;
                 return _Context.SaveChanges();
             }
 

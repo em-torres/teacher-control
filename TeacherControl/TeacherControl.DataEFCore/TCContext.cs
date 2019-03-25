@@ -11,7 +11,7 @@ namespace TeacherControl.DataEFCore
     public class TCContext : DbContext
     {
         protected DbContextOptions<TCContext> _Options { get; set; }
-        protected IUserService _UserService;
+        protected IAuthUserService _AuthUserService;
 
         //TODO: re-check the dbsets if follows the EF core conventions
         #region Assignment DB Sets
@@ -48,10 +48,10 @@ namespace TeacherControl.DataEFCore
         public virtual DbSet<Status> Statuses { get; set; }
         public virtual DbSet<User> Users { get; set; }
 
-        public TCContext(DbContextOptions<TCContext> options, IUserService userService) : base(options)
+        public TCContext(DbContextOptions<TCContext> options, IAuthUserService authUserService) : base(options)
         {
             _Options = options;
-            _UserService = userService;
+            _AuthUserService = authUserService;
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -64,7 +64,7 @@ namespace TeacherControl.DataEFCore
         public override int SaveChanges()
         {
             ChangeTracker
-                .ApplyAuditInformation(_UserService);
+                .ApplyAuditInformation(_AuthUserService);
 
             base.SaveChanges();
             return (int)TransactionStatus.SUCCESS;
@@ -75,7 +75,7 @@ namespace TeacherControl.DataEFCore
             if (ChangeTracker.HasChanges())
             {
                 ChangeTracker
-                    .ApplyAuditInformation(_UserService);
+                    .ApplyAuditInformation(_AuthUserService);
 
                 base.SaveChangesAsync(cancellationToken);
                 return Task.FromResult((int)TransactionStatus.SUCCESS);

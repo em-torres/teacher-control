@@ -9,11 +9,11 @@ namespace TeacherControl.DataEFCore.Extensors
 {
     public static class DbContextExtensors
     {
-        public static ChangeTracker ApplyAuditInformation(this ChangeTracker tracker, IUserService userService)
+        public static ChangeTracker ApplyAuditInformation(this ChangeTracker tracker,  IAuthUserService authUserService)
         {
             if (tracker.HasChanges())
             {
-                string username = userService.GetUsername();
+                string username = authUserService.Username;
                 foreach (EntityEntry entry in tracker.Entries())
                 {
                     if (entry.Entity is IModificationAudit)
@@ -30,13 +30,19 @@ namespace TeacherControl.DataEFCore.Extensors
                         }
                     }
 
-                    //if (entry.Entity is IStatusAudit)
-                    //{
-                    //    if (entry.State == EntityState.Added)
-                    //    {
-                    //        entry.CurrentValues[nameof(IStatusAudit.StatusId)] = (int)Status.Active;
-                    //    }
-                    //}
+                    if (entry.Entity is IStatusAudit)
+                    {
+                        if (entry.State == EntityState.Added)
+                        {
+                            entry.CurrentValues[nameof(IStatusAudit.StatusId)] = (int)Status.Active;
+                        }
+
+                        if(entry.State == EntityState.Deleted)
+                        {
+                            entry.CurrentValues[nameof(IStatusAudit.StatusId)] = (int)Status.Deleted;
+                            entry.State = EntityState.Modified;
+                        }
+                    }
                 }
             }
 

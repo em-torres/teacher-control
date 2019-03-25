@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using TeacherControl.Core.Models;
 
 namespace TeacherControl.Domain.Services
 {
-    public interface IUserService
+    public interface IAuthUserService
     {
-        string GetUsername();
+        string Username { get; set; }
     }
 }

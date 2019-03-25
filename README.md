@@ -17,7 +17,7 @@
 - [ ] Docker support
 - [ ] CircleCi support
 - [ ] Add 404 route service
-- [ ] Add identity service with IdentityService4
+- [ ] Add identity service
 - [ ] Seed Db from the Enums in the Migration svc
 - [ ] Add ILogger service on: application layer, repos, startup, request/response middleware, on-config services
 - [ ] Create README.md with the the desciption fo the software
@@ -31,4 +31,6 @@
 - [ ] Move Entities, DTOs and Domain Enums on a new Class library 'Core'
 - [ ] Adding Upvotes that store who is giving and when
 - [ ] Addinng BLog module per courses
+- [ ] Update the saveChanges usage on the repositories
+- [ ] Configure EF core to run in memory when the environment flag i settled to TEST | DEV
 - [ ] Deploy :tada::metal:

@@ -50,7 +50,10 @@ namespace TeacherControl.DataEFCore.Extensors
             model.Property(b => b.Answer).IsRequired();
             model.Property(b => b.IsCorrect).IsRequired();
 
-            model.HasOne(b => b.Question).WithMany(b => b.Answers).HasForeignKey(b => b.QuestionId);
+            model.HasOne(b => b.Question)
+                .WithMany(b => b.Answers)
+                .HasForeignKey(b => b.QuestionId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             return builder;
         }
@@ -67,7 +70,7 @@ namespace TeacherControl.DataEFCore.Extensors
             model
                 .HasOne(b => b.Question)
                 .WithMany(b => b.AnswerMatches)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             return builder;
         }
@@ -89,8 +92,15 @@ namespace TeacherControl.DataEFCore.Extensors
 
             model.HasKey(b => new { b.QuestionnaireId, b.CommitmentId });
 
-            model.HasOne(b => b.Questionnaire).WithMany(b => b.QuestionnaireCommitments).HasForeignKey(b => b.QuestionnaireId);
-            model.HasOne(b => b.Commitment).WithMany(b => b.AssignmentCommitments).HasForeignKey(b => b.CommitmentId);
+            model.HasOne(b => b.Questionnaire)
+                .WithMany(b => b.QuestionnaireCommitments)
+                .HasForeignKey(b => b.QuestionnaireId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            model.HasOne(b => b.Commitment)
+                .WithMany(b => b.AssignmentCommitments)
+                .HasForeignKey(b => b.CommitmentId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             return builder;
         }

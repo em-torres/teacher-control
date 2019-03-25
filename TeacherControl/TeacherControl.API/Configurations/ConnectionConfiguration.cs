@@ -25,16 +25,9 @@ namespace TeacherControl.API.Configurations
             }
 
             services
-                .AddTransient<IUserService, DummyUserService>() //TODO: add a service that can retieve the user's info 
                 .AddDbContext<TCContext>(options => options.UseSqlServer(connection).UseLazyLoadingProxies());
 
             return services;
         }
-
-        class DummyUserService : IUserService
-        {
-            public string GetUsername() => "TEST_DUMMY_USER";
-        }
-
     }
 }

@@ -4,15 +4,13 @@ using TeacherControl.Core.AuditableModels;
 
 namespace TeacherControl.Core.Models
 {
-    public class User : IModificationAudit
+    public class User : IModificationAudit, IStatusAudit
     {
         public int Id { get; set; }
-        public string AuthToken { get; set; }
-        public string Email { get; set; }
+        public string SaltToken { get; set; }
         public string Password { get; set; }
         public string Username { get; set; }
 
-        public virtual UserInfo UserInfo { get; set; }
         public virtual ICollection<UserGroup> Groups { get; set; }
         public virtual ICollection<UserCourse> Courses{ get; set; }
 
@@ -20,5 +18,8 @@ namespace TeacherControl.Core.Models
         public DateTime UpdatedDate { get; set; }
         public string CreatedBy { get; set; }
         public string UpdatedBy { get; set; }
+
+        public int StatusId { get; set; }
+        public virtual Status Status { get; set; }
     }
 }

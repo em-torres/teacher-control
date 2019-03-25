@@ -1,11 +1,8 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Generic;
-using System.Globalization;
 using TeacherControl.API.Configurations;
 
 namespace TeacherControl.API
@@ -26,7 +23,7 @@ namespace TeacherControl.API
 
             //services.AddResponseCaching();
 
-            //TODO: loging svc log4net
+            //TODO: loging svc log4netor with the MS ILogger
             services
                 .AddAutoMapperConfiguration()
                 .AddConnectionProvider(Configuration)
@@ -35,7 +32,8 @@ namespace TeacherControl.API
                 .AddMiddlewares()
                 .AddCorsConfiguration()
                 .AddFluentDTOsValidationRules()
-                .AddFluentQueryFiltersValidationRules();
+                .AddFluentQueryFiltersValidationRules()
+                .ConfigureBearerAuthentication();
 
             services
                 .AddMvc()
@@ -52,7 +50,10 @@ namespace TeacherControl.API
 
             }
 
-            app.UseMvc(routes => routes.MapRoute("api", "api/{controller}"));//TODO: check if this is right
+            app
+                .ConfigureSecurePolicies()
+                .UseAuthentication()
+                .UseMvc(routes => routes.MapRoute("api", "api/{controller}"));//TODO: check if this is right
         }
 
 

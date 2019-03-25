@@ -13,12 +13,34 @@ namespace TeacherControl.DataEFCore.Extensors
         public static ModelBuilder BuildUser(this ModelBuilder builder)
         {
             EntityTypeBuilder<User> model = builder.Entity<User>();
-            
 
-            model.Property(i => i.AuthToken).IsRequired().HasMaxLength(50).HasValueGenerator(typeof(TokenGuidGenerator)).ValueGeneratedOnAdd();
-            model.HasOne(i => i.UserInfo);
+            model.Property(i => i.Password).IsRequired().HasMaxLength(100);
+            model.Property(i => i.SaltToken).IsRequired().HasMaxLength(32).HasValueGenerator(typeof(TokenGuidGenerator)).ValueGeneratedOnAdd();
+            model.HasIndex(i => i.StatusId).IsUnique(false);
 
-            model.HasIndex(i => i.AuthToken).IsUnique();
+            model.HasIndex(i => i.SaltToken).IsUnique();
+            //model.HasOne(i => i.Status)
+            //    .WithOne()
+            //    .HasForeignKey<User>(i => i.StatusId)
+            //    .OnDelete(DeleteBehavior.Restrict);
+
+
+            return builder;
+        }
+
+        public static ModelBuilder BuildUserInfo(this ModelBuilder builder)
+        {
+            EntityTypeBuilder<UserInfo> model = builder.Entity<UserInfo>();
+
+            model.Property(i => i.FirstName).IsRequired().HasMaxLength(100);
+            model.Property(i => i.FirstName).IsRequired().HasMaxLength(100);
+            model.Property(i => i.Email).IsRequired().HasMaxLength(60);
+
+            model.HasIndex(i => i.Email).IsUnique();
+
+            model.HasOne(i => i.User)
+                .WithOne()
+                .HasForeignKey<UserInfo>(i => i.UserId);
 
             return builder;
         }
