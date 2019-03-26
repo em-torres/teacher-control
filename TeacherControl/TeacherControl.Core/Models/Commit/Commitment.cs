@@ -5,7 +5,7 @@ using TeacherControl.Core.AuditableModels;
 
 namespace TeacherControl.Core.Models
 {
-    public class Commitment : IModificationAudit
+    public class Commitment : IModificationAudit, IStatusAudit
     {
         public int Id { get; set; }
         public int UserId { get; set; }
@@ -17,6 +17,7 @@ namespace TeacherControl.Core.Models
 
         public virtual ICollection<QuestionnaireCommitment> AssignmentCommitments { get; set; }
 
+        public int StatusId { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
         public string CreatedBy { get; set; }

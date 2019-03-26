@@ -18,19 +18,14 @@ namespace TeacherControl.DataEFCore.Extensors
             model.Property(b => b.EndDate).IsRequired();
             model.Property(b => b.Body).IsRequired().HasMaxLength(5000);
             model.Property(b => b.Points).IsRequired();
+            model.Property(b => b.StatusId).IsRequired();
 
             model.HasIndex(b => b.Title).IsUnique();
             model.HasIndex(b => b.HashIndex).IsUnique();
-            model.HasIndex(b => b.StatusId).IsUnique(false);
 
             model.HasOne(b => b.Course)
                 .WithMany(b => b.Assignments)
                 .HasForeignKey(b => b.CourseId);
-
-            model.HasOne(b => b.Status)
-                .WithOne()
-                .HasForeignKey<Assignment>(i => i.StatusId)
-                .OnDelete(DeleteBehavior.Restrict);
 
             model
                 .HasOne(b => b.Counts)
@@ -73,18 +68,13 @@ namespace TeacherControl.DataEFCore.Extensors
             model.Property(b => b.Title).IsRequired();
             model.Property(b => b.Upvote).HasDefaultValue(0).IsRequired();
             model.Property(b => b.Body).IsRequired();
+            model.Property(b => b.StatusId).IsRequired();
 
-            model.HasIndex(b => b.StatusId).IsUnique(false);
             model.HasIndex(b => b.AuthorId).IsUnique(false);
 
             model.HasOne(b => b.Author)
                 .WithOne()
                 .HasForeignKey<AssignmentComment>(i => i.AuthorId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            model.HasOne(b => b.Status)
-                .WithOne()
-                .HasForeignKey<AssignmentComment>(b => b.StatusId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             model

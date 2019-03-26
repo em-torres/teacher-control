@@ -19,14 +19,11 @@ namespace TeacherControl.DataEFCore.Repositories
         public int Add(CourseDTO dto)
         {
             Course course = _Mapper.Map<CourseDTO, Course>(dto);
-            course.StatusId = (int)Core.Enums.Status.Active;
-            course.Professors = new List<UserCourse>()
-            {
-                new UserCourse { User = _Context.Users.Where(i => i.Id.Equals(dto.Professor)).First() }
-            };
-
+            
             return Add(course);
         }
+        
+        //TODO subscribe a student or a teacher to the course, 
 
         public int Update(int id, CourseDTO dto)
         {
@@ -34,8 +31,7 @@ namespace TeacherControl.DataEFCore.Repositories
 
             if (_Context.Courses.Any(i => i.Id.Equals(id)))
             {
-                Update(i => i.Id.Equals(id), dto);
-                return _Context.SaveChanges();
+                return Update(i => i.Id.Equals(id), dto);
             }
 
             return (int)TransactionStatus.ENTITY_NOT_FOUND;
@@ -48,8 +44,7 @@ namespace TeacherControl.DataEFCore.Repositories
 
             if (course.StatusId != removedStatusID)
             {
-                _Context.Entry(course).State = EntityState.Deleted;
-                return _Context.SaveChanges();
+                return Remove(course);
             }
 
             return (int)TransactionStatus.ENTITY_NOT_FOUND;

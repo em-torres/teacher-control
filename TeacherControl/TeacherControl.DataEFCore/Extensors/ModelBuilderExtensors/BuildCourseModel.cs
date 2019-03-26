@@ -20,14 +20,8 @@ namespace TeacherControl.DataEFCore.Extensors
             model.Property(b => b.StartDate).IsRequired();
             model.Property(b => b.EndDate).IsRequired();
             model.Property(b => b.Credits).IsRequired();
-
-            model.HasIndex(b => b.StatusId).IsUnique(false);
-
-            model.HasOne(b => b.Status)
-                .WithOne()
-                .HasForeignKey<Course>(i => i.StatusId)
-                .OnDelete(DeleteBehavior.Restrict);
-
+            model.Property(b => b.StatusId).IsRequired();
+            
             return builder;
         }
 

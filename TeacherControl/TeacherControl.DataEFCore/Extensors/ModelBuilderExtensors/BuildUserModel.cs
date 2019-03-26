@@ -16,14 +16,10 @@ namespace TeacherControl.DataEFCore.Extensors
 
             model.Property(i => i.Password).IsRequired().HasMaxLength(100);
             model.Property(i => i.SaltToken).IsRequired().HasMaxLength(32).HasValueGenerator(typeof(TokenGuidGenerator)).ValueGeneratedOnAdd();
+            model.Property(i => i.StatusId).IsRequired();
             model.HasIndex(i => i.StatusId).IsUnique(false);
 
             model.HasIndex(i => i.SaltToken).IsUnique();
-            //model.HasOne(i => i.Status)
-            //    .WithOne()
-            //    .HasForeignKey<User>(i => i.StatusId)
-            //    .OnDelete(DeleteBehavior.Restrict);
-
 
             return builder;
         }
@@ -67,8 +63,8 @@ namespace TeacherControl.DataEFCore.Extensors
         {
             modelBuilder.Entity<UserGroup>().HasKey(t => new { t.GroupId, t.UserId });
 
-            modelBuilder.Entity<UserGroup>().HasOne(i => i.Group).WithMany(i => i.Users).OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<UserGroup>().HasOne(i => i.User).WithMany(i => i.Groups).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<UserGroup>().HasOne(i => i.Group).WithMany(i => i.Users);
+            modelBuilder.Entity<UserGroup>().HasOne(i => i.User).WithMany(i => i.Groups);
 
             return modelBuilder;
         }

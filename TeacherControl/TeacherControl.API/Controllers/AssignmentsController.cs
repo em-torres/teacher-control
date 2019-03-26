@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,7 @@ using TeacherControl.Domain.Repositories;
 
 namespace TeacherControl.API.Controllers
 {
+    [Authorize]
     [Route("api/assignments")]
     public class AssignmentsController : Controller
     {
@@ -44,14 +46,13 @@ namespace TeacherControl.API.Controllers
             {
                 return BadRequest("The Json Body is Empty");
             }
+
             return this.Created(() =>
             {
                 AssignmentDTO dto = json.ToObject<AssignmentDTO>();
-                JObject result = _AssignmentRepo.Add(dto).Equals(TransactionStatus.SUCCESS)
-                    ? dto.ToJson()
-                    : new JObject();
+                bool result = _AssignmentRepo.Add(dto).Equals((int)TransactionStatus.SUCCESS);
 
-                return result;
+                return dto.ToJson();
             });
         }
 
@@ -101,13 +102,17 @@ namespace TeacherControl.API.Controllers
         //TODO: get the questionnaire result set
 
         [HttpGet, Route("{assignmentId:int:min(1)}/comments")]
-        public IActionResult GetCourseComments([FromRoute] int courseId, [FromQuery] AssignmentCommentQuery query)
+        public IActionResult GetCourseComments([FromRoute] int courseId, [FromQuery] AssignmentCommentQuery commentQuery)
         {
             return this.Ok(() =>
             {
-                IEnumerable<AssignmentCommentDTO> data = _AssignmentRepo.GetAllAssignmentComments(courseId, query);
-                query.PageSize = query.PageSize <= 0 ? 50 : query.PageSize;
-                query.Page = query.Page <= 0 ? 1 : query.Page;
+                IEnumerable<AssignmentCommentDTO> data = _AssignmentRepo.GetAllAssignmentComments(courseId, commentQuery);
+                var query = new
+                {
+                    PageSize = commentQuery.PageSize <= 0 ? 50 : commentQuery.PageSize,
+                    Page = commentQuery.Page <= 0 ? 1 : commentQuery.Page
+                };
+
 
                 return new { query, data }.ToJson();
             });
@@ -116,10 +121,7 @@ namespace TeacherControl.API.Controllers
         [HttpPost, Route("{assignmentId:int:min(1)}/comments")]
         public IActionResult AddCourseComment([FromRoute] int courseId, [FromBody] AssignmentCommentDTO dto)
         {
-            int successTransactionValue = (int)TransactionStatus.SUCCESS;
-
-            return this.Created(() =>
-                _AssignmentRepo.AddComment(courseId, dto).Equals(successTransactionValue)
+            return this.Created(() => _AssignmentRepo.AddComment(courseId, dto).Equals((int)TransactionStatus.SUCCESS)
                 ? dto.ToJson()
                 : new JObject());
         }

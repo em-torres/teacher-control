@@ -23,7 +23,8 @@ namespace TeacherControl.DataEFCore.Repositories
 
         public void Dispose()
         {
-            _Context.Dispose();  //TBD
+            _Context.Dispose();
+            _Mapper = null;
         }
 
         #region Repo CRUD

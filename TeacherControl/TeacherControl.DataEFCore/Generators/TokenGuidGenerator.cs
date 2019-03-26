@@ -21,13 +21,7 @@ namespace TeacherControl.DataEFCore.Generators
                 throw new ArgumentNullException(nameof(entry));
             }
 
-            Guid guid = Guid.NewGuid();
-            if (entry.Metadata.ClrType == typeof(Assignment))
-            {
-                return guid.ToString().Split('-').Last();
-            }
-          
-            return string.Join(string.Empty, guid.ToString().Split("-").ToArray());
+            return Guid.NewGuid().ToString().Replace("-", string.Empty);
         }
     }
 }

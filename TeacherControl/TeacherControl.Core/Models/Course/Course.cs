@@ -15,9 +15,7 @@ namespace TeacherControl.Core.Models
         public double Credits { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-
         public int StatusId { get; set; }
-        public virtual Status Status { get; set; }
 
         public virtual ICollection<UserCourse> Professors { get; set; }
         public virtual ICollection<Assignment> Assignments { get; set; }

@@ -20,8 +20,7 @@ namespace TeacherControl.DataEFCore.Extensors
             model.HasMany(b => b.Questions);
             model.HasOne(b => b.Assignment)
                 .WithMany(b => b.Questionnaires)
-                .HasForeignKey(b => b.AssignmentId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .HasForeignKey(b => b.AssignmentId);
 
             return builder;
         }

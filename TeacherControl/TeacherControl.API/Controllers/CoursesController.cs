@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using TeacherControl.API.Extensors;
@@ -10,6 +11,7 @@ using TeacherControl.Domain.Repositories;
 
 namespace TeacherControl.API.Controllers
 {
+    [Authorize]
     [Route("/api/courses")]
     public class CoursesController : Controller
     {
@@ -53,15 +55,13 @@ namespace TeacherControl.API.Controllers
             }
 
             CourseDTO dto = json.ToObject<CourseDTO>();
-            dto.Status = Core.Enums.Status.Active;
 
             return this.Created(() =>
             {
-                JObject result = _CourseRepo.Add(dto).Equals((int)TransactionStatus.SUCCESS)
-                        ? dto.ToJson()
-                        : new JObject();
+                bool result = _CourseRepo.Add(dto).Equals((int)TransactionStatus.SUCCESS);
+                dto.Status = Core.Enums.Status.Active;
 
-                return result;
+                return dto.ToJson();
             });
         }
 

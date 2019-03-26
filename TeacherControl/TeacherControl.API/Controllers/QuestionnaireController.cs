@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using TeacherControl.API.Extensors;
 using TeacherControl.Core.DTOs;
@@ -7,6 +8,7 @@ using TeacherControl.Domain.Repositories;
 
 namespace TeacherControl.API.Controllers
 {
+    [Authorize]
     [Route("api/assignments/{assignmentId:int:min(1)}/questionnaires")]
     public class QuestionnaireController : Controller
     {

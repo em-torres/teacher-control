@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -6,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TeacherControl.Common.Extensors;
 using TeacherControl.Domain.Services;
 using TeacherControl.Infraestructure.Services;
 
@@ -13,33 +15,33 @@ namespace TeacherControl.API.Configurations
 {
     public static class AuthConfiguration
     {
-        public static IServiceCollection ConfigureBearerAuthentication(this IServiceCollection services)
+        public static IServiceCollection ConfigureBearerAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
-            byte[] SECRET_KEY = Encoding.ASCII.GetBytes("PUT_SECRET_KEY_HERE_FROM_THE_CONFIG");
+            byte[] SECRET_KEY = Encoding.ASCII.GetBytes(configuration.GetSection("AppSettings:SecretKey").Value);
+            string AUDIENCE = configuration.GetSection("AppSettings:Audience").Value;
+            string ISSUER = configuration.GetSection("AppSettings:Issuer").Value;
 
             services
-                //.AddScoped<IAuthUserService, AuthUserService>()
-                .AddScoped<IAuthUserService, DummyAuthUserService>()
+                .AddTransient<IAuthUserService, DummyAuthUserService>()
                 .AddAuthentication(config =>
                 {
                     config.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                     config.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 })
-                .AddJwtBearer(config => 
+                .AddJwtBearer(config =>
                 {
-                    //config.Audience = "get from the config";
-                    //config.Authority = "get from the config";
+                    //config.Audience = AUDIENCE;
+                    //config.Authority = ISSUER;
                     config.Events = new JwtBearerEvents
                     {
                         OnTokenValidated = (contex) =>
                         {
                             //TODO logger here
 
-                            //IUserService userService = contex.HttpContext.RequestServices.GetRequiredService<IUserService>();
-                            //contex.Principal.Identity.Name userId = userService.GetUsername();
+                            var userService = contex.HttpContext.RequestServices.GetRequiredService<IAuthUserService>();
+                            userService.Username = contex.Principal.Claims.GetUsername();
 
                             //add claims here for the user here
-
 
                             return Task.CompletedTask;
                         },
@@ -57,13 +59,14 @@ namespace TeacherControl.API.Configurations
                     config.RequireHttpsMetadata = false; //TODO set this flag to TRUE on prod
                     config.TokenValidationParameters = new TokenValidationParameters
                     {
-                        //TBD, shouldi pass the issuer and the audience?
+                        //TBD, should i pass the issuer and the audience?
+                        
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(SECRET_KEY),
                         //ValidateIssuer = true,
                         //ValidateAudience = true,
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
                         ClockSkew = TimeSpan.FromMinutes(5),
                     };
 
@@ -76,7 +79,10 @@ namespace TeacherControl.API.Configurations
     //TODO: delete this
     class DummyAuthUserService : IAuthUserService
     {
-        public string Username { get => "TEST_DUMMY_USERNAME"; set => throw new NotImplementedException(); }
+        protected string _Username;
+
+        //public string Username { get => _Username; set => _Username = value; }
+        public string Username { get => _Username ?? "TEST_USER"; set => _Username = value; }
     }
 
 }

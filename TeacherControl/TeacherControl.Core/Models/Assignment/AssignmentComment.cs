@@ -12,15 +12,13 @@ namespace TeacherControl.Core.Models
         public string Body { get; set; }
         public int Upvote { get; set; }
 
-        public int StatusId { get; set; }
-        public virtual Status Status { get; set; }
-
         public int AuthorId { get; set; }
         public virtual User Author { get; set; }
 
         public int AssignmentId { get; set; }
         public virtual Assignment Assignment { get; set; }
 
+        public int StatusId { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
         public string CreatedBy { get; set; }

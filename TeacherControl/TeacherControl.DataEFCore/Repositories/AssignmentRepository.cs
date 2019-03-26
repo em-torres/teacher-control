@@ -45,9 +45,7 @@ namespace TeacherControl.DataEFCore.Repositories
             Assignment assignment = Find(i => i.Id.Equals(ID));
             if (assignment.Id > 0)
             {
-                _Context.Entry(assignment).State = EntityState.Deleted;
-
-                return _Context.SaveChanges();
+                return Remove(assignment);
             }
 
             return (int)TransactionStatus.ENTITY_NOT_FOUND;

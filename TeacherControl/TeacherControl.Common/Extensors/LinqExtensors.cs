@@ -13,5 +13,6 @@ namespace TeacherControl.Common.Extensors
             size = size > 0 ? size : 50;
             return entities.Skip(page * size).Take(size);
         }
+
     }
 }

@@ -3,17 +3,22 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using TeacherControl.API.Configurations;
 
 namespace TeacherControl.API
 {
     public class Startup
     {
-        public IConfiguration Configuration { get; }
+        public IConfigurationRoot Configuration { get; }
 
-        public Startup(IConfiguration configuration)
+        public Startup(IHostingEnvironment env)
         {
-            Configuration = configuration;
+            Configuration = new ConfigurationBuilder()
+                   .SetBasePath(env.ContentRootPath)
+                   .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                   //.AddJsonFile("appsettings.{Environment}.json", optional: false, reloadOnChange: true)
+                   .Build();
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -33,12 +38,15 @@ namespace TeacherControl.API
                 .AddCorsConfiguration()
                 .AddFluentDTOsValidationRules()
                 .AddFluentQueryFiltersValidationRules()
-                .ConfigureBearerAuthentication();
+                .ConfigureBearerAuthentication(Configuration);
 
-            services
-                .AddMvc()
+            services.AddMvc()
                 .AddFluentValidationConfiguration()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+            services
+                .Configure<AppSettings>(Configuration.GetSection("AppSettings"))
+                .AddOptions<AppSettings>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -49,6 +57,8 @@ namespace TeacherControl.API
                 app.UseDeveloperExceptionPage();
 
             }
+
+
 
             app
                 .ConfigureSecurePolicies()

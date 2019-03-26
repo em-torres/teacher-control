@@ -22,7 +22,7 @@ namespace TeacherControl.DataEFCore.Repositories
             Questionnaire entity = _Mapper.Map<QuestionnaireDTO, Questionnaire>(dto);
             entity.AssignmentId = AssignmentID;
             entity.CreatedBy = createdBy;
-            entity.Status = _Context.Statuses.Where(i => i.Id.Equals((int)Core.Enums.Status.Active)).First();
+            entity.StatusId = (int)Core.Enums.Status.Active;
 
             return Add(entity);
         }

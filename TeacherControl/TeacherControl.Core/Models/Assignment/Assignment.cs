@@ -14,9 +14,6 @@ namespace TeacherControl.Core.Models
         public string Body { get; set; }
         public double Points { get; set; }
 
-        public int StatusId { get; set; }
-        public virtual Status Status { get; set; }
-
         public int CourseId { get; set; }
         public virtual Course Course { get; set; }
 
@@ -25,6 +22,7 @@ namespace TeacherControl.Core.Models
         public virtual ICollection<AssignmentComment> Comments { get; set; }
         public virtual ICollection<Questionnaire> Questionnaires { get; set; }
 
+        public int StatusId { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
         public string CreatedBy { get; set; }

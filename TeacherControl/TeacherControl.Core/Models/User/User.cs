@@ -20,6 +20,5 @@ namespace TeacherControl.Core.Models
         public string UpdatedBy { get; set; }
 
         public int StatusId { get; set; }
-        public virtual Status Status { get; set; }
     }
 }
