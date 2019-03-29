@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace TeacherControl.Core.DTOs.CommitDTOs
+namespace TeacherControl.Core.DTOs
 {
     public class CommitmentDTO
     {

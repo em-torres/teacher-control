@@ -5,15 +5,15 @@ using TeacherControl.Core.AuditableModels;
 
 namespace TeacherControl.Core.Models
 {
-    public class UserCourse : IModificationAudit
+    public class AssignmentCommentUpvote : IModificationAudit
     {
         public int Id { get; set; }
 
-        public int UserId { get; set; }
+        public int UserId{ get; set; }
         public virtual User User { get; set; }
 
-        public int CourseId { get; set; }
-        public virtual Course Course { get; set; }
+        public int AssignmentCommentId { get; set; }
+        public virtual AssignmentComment AssignmentComment { get; set; }
 
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }

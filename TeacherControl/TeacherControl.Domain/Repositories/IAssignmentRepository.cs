@@ -23,6 +23,6 @@ namespace TeacherControl.Domain.Repositories
         int RemoveAssignmentComment(int assignmentId, int commentId);
         IEnumerable<AssignmentCommentDTO> GetAllAssignmentComments(int assignmentId, AssignmentCommentQuery Query);
         int DisableAssignmentComment(int assignmentId, int CommentId);
-        int UpdateUpvoteAssignmentComment(int assignmentId, int CommentId, int Upvote);
+        int DownvoteComment(int AssingmentId, int CommentId, int UserId);
     }
 }

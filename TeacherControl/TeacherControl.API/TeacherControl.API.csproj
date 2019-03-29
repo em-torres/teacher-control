@@ -21,8 +21,6 @@
 
   <ItemGroup>
     <Compile Remove="Controllers\GroupsController.cs" />
-    <Compile Remove="Controllers\QuestionnairesController.cs" />
-    <Compile Remove="Controllers\UsersController.cs" />
   </ItemGroup>
 
   <ItemGroup>

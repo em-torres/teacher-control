@@ -35,7 +35,6 @@ namespace TeacherControl.DataEFCore.Repositories
         public int Add(AssignmentDTO dto)
         {
             Assignment model = _Mapper.Map<AssignmentDTO, Assignment>(dto);
-            model.Counts = new AssignmentCounts { UpvotesCount = 0, ViewsCount = 0 };
 
             return Add(model);
         }
@@ -43,12 +42,12 @@ namespace TeacherControl.DataEFCore.Repositories
         public int DeleteById(int ID)
         {
             Assignment assignment = Find(i => i.Id.Equals(ID));
-            if (assignment.Id > 0)
+            if (assignment is null || assignment.Id <= 0)
             {
-                return Remove(assignment);
+                return (int)TransactionStatus.ENTITY_NOT_FOUND;
             }
 
-            return (int)TransactionStatus.ENTITY_NOT_FOUND;
+            return Remove(assignment);
         }
 
         public int DeleteByTokenId(string tokenID)
@@ -56,9 +55,7 @@ namespace TeacherControl.DataEFCore.Repositories
             Assignment assignment = Find(i => i.HashIndex.Equals(tokenID));
             if (assignment.Id > 0)
             {
-                assignment.StatusId = (int)Core.Enums.Status.Deleted;
-
-                return _Context.SaveChanges();
+                return Remove(assignment);
             }
 
             return (int)TransactionStatus.ENTITY_NOT_FOUND;
@@ -90,30 +87,38 @@ namespace TeacherControl.DataEFCore.Repositories
             return (int)TransactionStatus.ENTITY_NOT_FOUND;
         }
 
-        public int UpdateUpvoteCount(int id, int value)
+        public int DownvoteComment(int AssignmentId, int CommentId, int UserId)
         {
-            Assignment assignment = Find(i => i.Equals(id));
-            if (assignment.Id > 0)
+            Assignment assignment = Find(i => i.Equals(AssignmentId));
+            if(assignment is null || assignment.Id <= 0) return (int)TransactionStatus.ENTITY_NOT_FOUND;
+
+            AssignmentComment comment = assignment.Comments.Where(i => i.Id.Equals(CommentId)).FirstOrDefault();
+            if (comment is null || comment.Id <= 0) return (int)TransactionStatus.ENTITY_NOT_FOUND;
+
+            comment.Downvotes.Add(new AssignmentCommentDownvote
             {
-                assignment.Counts.UpvotesCount = assignment.Counts.UpvotesCount + value;
+                AssignmentComment = comment,
+                UserId = UserId
+            });
 
-                return _Context.SaveChanges();
-            }
-
-            return (int)TransactionStatus.ENTITY_NOT_FOUND;
+            return _Context.SaveChanges();
         }
 
-        public int UpdateViewsCount(int id, int value)
+        public int UpvoteComment(int AssignmentId, int CommentId, int UserId)
         {
-            Assignment assignment = Find(i => i.Equals(id));
-            if (assignment.Id > 0)
+            Assignment assignment = Find(i => i.Equals(AssignmentId));
+            if (assignment is null || assignment.Id <= 0) return (int)TransactionStatus.ENTITY_NOT_FOUND;
+
+            AssignmentComment comment = assignment.Comments.Where(i => i.Id.Equals(CommentId)).FirstOrDefault();
+            if (comment is null || comment.Id <= 0) return (int)TransactionStatus.ENTITY_NOT_FOUND;
+
+            comment.Upvotes.Add(new AssignmentCommentUpvote
             {
-                assignment.Counts.ViewsCount = assignment.Counts.ViewsCount + value;
+                AssignmentComment = comment,
+                UserId = UserId
+            });
 
-                return _Context.SaveChanges();
-            }
-
-            return (int) TransactionStatus.ENTITY_NOT_FOUND;
+            return _Context.SaveChanges();
         }
 
         public IEnumerable<AssignmentResultDTO> GetQuestionnaireResults(int assignmentId, string username)
@@ -195,19 +200,7 @@ namespace TeacherControl.DataEFCore.Repositories
             AssignmentComment comment = Find(i => i.Id.Equals(assignmentId)).Comments.Where(i => i.Id.Equals(CommentId)).First();
             if (comment.Id > 0)
             {
-                comment.StatusId = (int)Core.Enums.Status.Disabled;
-                return _Context.SaveChanges();
-            }
-
-            return (int)TransactionStatus.ENTITY_NOT_FOUND;
-        }
-
-        public int UpdateUpvoteAssignmentComment(int assignmentId, int CommentId, int upvote)
-        {
-            AssignmentComment comment = Find(i => i.Id.Equals(assignmentId)).Comments.Where(i => i.Id.Equals(CommentId)).First();
-            if (comment.Id > 0)
-            {
-                comment.Upvote += upvote;
+                comment.Status = Core.Enums.Status.Disabled.ToString();
                 return _Context.SaveChanges();
             }
 

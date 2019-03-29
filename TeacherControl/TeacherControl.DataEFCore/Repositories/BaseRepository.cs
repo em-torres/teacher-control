@@ -39,7 +39,7 @@ namespace TeacherControl.DataEFCore.Repositories
             return _Context
                 .Set<TEntity>()
                 .Where(predicate)
-                .First();
+                .FirstOrDefault();
         }
 
         public Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> predicate)
@@ -47,7 +47,7 @@ namespace TeacherControl.DataEFCore.Repositories
             return _Context
                 .Set<TEntity>()
                 .Where(predicate)
-                .FirstAsync();
+                .FirstOrDefaultAsync();
         }
 
         public IQueryable<TEntity> GetAll(Expression<Func<TEntity, bool>> predicate)
@@ -91,6 +91,12 @@ namespace TeacherControl.DataEFCore.Repositories
             var oldEntity = _Context.Set<TEntity>().Where(predicate).First();
             if (properties != null) _Context.Entry(oldEntity).CurrentValues.SetValues(properties);
 
+            return _Context.SaveChanges();
+
+        }
+        public int Update(TEntity entity, object properties)
+        {
+            if (properties != null) _Context.Entry(entity).CurrentValues.SetValues(properties);
             return _Context.SaveChanges();
         }
 

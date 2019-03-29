@@ -8,9 +8,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace TeacherControl.API.Controllers
 {
     [Authorize]
+    [Route("api/defaults")]
     public class DefaultValuesController : Controller
     {
-        public IActionResult Index()
+        [HttpGet]
+        public IActionResult GetConstantsValues()
         {
             return View();
         }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -24,14 +25,18 @@ namespace TeacherControl.API.Configurations
 
         public static IServiceCollection AddMiddlewares(this IServiceCollection services)
         {
-            services.AddMvc().AddJsonOptions(options =>
-            {
-                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-                options.SerializerSettings.ContractResolver = new DefaultContractResolver
+            services
+                .AddMvc()
+                .AddFluentValidationConfiguration()
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
+                .AddJsonOptions(options =>
                 {
-                    NamingStrategy = new SnakeCaseNamingStrategy(),                    
-                };
-            });
+                    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                    options.SerializerSettings.ContractResolver = new DefaultContractResolver
+                    {
+                        NamingStrategy = new SnakeCaseNamingStrategy(),                    
+                    };
+                });
 
             return services;
         }

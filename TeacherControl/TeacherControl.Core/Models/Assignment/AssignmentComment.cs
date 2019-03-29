@@ -10,7 +10,9 @@ namespace TeacherControl.Core.Models
         public int Id { get; set; }
         public string Title { get; set; }
         public string Body { get; set; }
-        public int Upvote { get; set; }
+
+        public virtual ICollection<AssignmentCommentUpvote> Upvotes { get; set; }
+        public virtual ICollection<AssignmentCommentDownvote> Downvotes { get; set; }
 
         public int AuthorId { get; set; }
         public virtual User Author { get; set; }
@@ -18,7 +20,7 @@ namespace TeacherControl.Core.Models
         public int AssignmentId { get; set; }
         public virtual Assignment Assignment { get; set; }
 
-        public int StatusId { get; set; }
+        public string Status { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
         public string CreatedBy { get; set; }

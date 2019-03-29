@@ -13,6 +13,7 @@ namespace TeacherControl.Domain.Repositories
         int RemoveRange(IEnumerable<TEntity> entities);
         int Add(TEntity T);
         int Update(Expression<Func<TEntity, bool>> predicate, object properties);
+        int Update(TEntity entity , object properties);
         TEntity Find(Expression<Func<TEntity, bool>> predicate);
 
         IQueryable<TEntity> GetAll();

@@ -1,19 +1,20 @@
 ﻿using AutoMapper;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using TeacherControl.Core.DTOs;
 using TeacherControl.Core.Models;
 
 namespace TeacherControl.Domain.AutoMapperProfiles.UserProfiles
 {
-    public class UserCredentialsProfile : Profile
+    public class UserInfoProfile : Profile
     {
-        public UserCredentialsProfile()
+        public UserInfoProfile()
         {
-            CreateMap<User, UserCredentialDTO>();
+            CreateMap<UserInfo, UserInfoDTO>();
 
-            CreateMap<UserCredentialDTO, User>();
+            CreateMap<UserInfoDTO, UserInfo>();
         }
     }
 }

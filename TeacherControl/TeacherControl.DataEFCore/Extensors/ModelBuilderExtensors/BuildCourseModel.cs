@@ -14,13 +14,17 @@ namespace TeacherControl.DataEFCore.Extensors
             model.HasKey(b => b.Id);
 
             model.Property(b => b.Name).IsRequired().HasMaxLength(150);
-            model.Property(b => b.CodeIdentifier).IsRequired().HasValueGenerator<TokenGuidGenerator>().HasMaxLength(15);
-            model.Property(b => b.Description).IsRequired(); //TODO: max length TBD
+            model.Property(b => b.HashIndex).IsRequired().HasValueGenerator<TokenGuidGenerator>().HasMaxLength(15);
+            model.Property(b => b.Description).HasMaxLength(5000).IsRequired(); //TODO: max length TBD
             model.Property(b => b.Credits).IsRequired();
+            model.Property(b => b.CodeId).HasMaxLength(15).IsRequired();
             model.Property(b => b.StartDate).IsRequired();
             model.Property(b => b.EndDate).IsRequired();
             model.Property(b => b.Credits).IsRequired();
-            model.Property(b => b.StatusId).IsRequired();
+            model.Property(b => b.Status).HasMaxLength(15).IsRequired();
+
+            model.HasIndex(b => b.HashIndex).IsUnique();
+            model.HasIndex(b => b.CodeId).IsUnique();
             
             return builder;
         }
@@ -39,10 +43,17 @@ namespace TeacherControl.DataEFCore.Extensors
         {
             EntityTypeBuilder<CourseUserCredit> model = builder.Entity<CourseUserCredit>();
 
-            model.Property(b => b.Credits).IsRequired();
+            model.Property(b => b.Credits).HasDefaultValue(0);
 
-            model.HasOne(b => b.Student);
-            model.HasOne(b => b.Course);
+            model.HasOne(b => b.Student)
+                .WithMany(i => i.Credits)
+                .HasForeignKey(i => i.StudentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            model.HasOne(b => b.Course)
+                .WithMany(i => i.StudentCredits)
+                .HasForeignKey(i => i.CourseId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             return builder;
         }

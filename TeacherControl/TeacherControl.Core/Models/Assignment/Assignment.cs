@@ -17,12 +17,11 @@ namespace TeacherControl.Core.Models
         public int CourseId { get; set; }
         public virtual Course Course { get; set; }
 
-        public virtual AssignmentCounts Counts{ get; set; }
         public virtual ICollection<AssignmentTag> Tags { get; set; }
         public virtual ICollection<AssignmentComment> Comments { get; set; }
         public virtual ICollection<Questionnaire> Questionnaires { get; set; }
 
-        public int StatusId { get; set; }
+        public string Status { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
         public string CreatedBy { get; set; }

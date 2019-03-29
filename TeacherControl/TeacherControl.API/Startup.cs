@@ -16,18 +16,14 @@ namespace TeacherControl.API
         {
             Configuration = new ConfigurationBuilder()
                    .SetBasePath(env.ContentRootPath)
-                   .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                   //.AddJsonFile("appsettings.{Environment}.json", optional: false, reloadOnChange: true)
+                   .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                   .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
                    .Build();
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddMemoryCache();
-
-            //services.AddResponseCaching();
-
             //TODO: loging svc log4netor with the MS ILogger
             services
                 .AddAutoMapperConfiguration()
@@ -38,13 +34,8 @@ namespace TeacherControl.API
                 .AddCorsConfiguration()
                 .AddFluentDTOsValidationRules()
                 .AddFluentQueryFiltersValidationRules()
-                .ConfigureBearerAuthentication(Configuration);
-
-            services.AddMvc()
-                .AddFluentValidationConfiguration()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-
-            services
+                .ConfigureBearerAuthentication(Configuration)
+                .ConfigureCaching(Configuration)
                 .Configure<AppSettings>(Configuration.GetSection("AppSettings"))
                 .AddOptions<AppSettings>();
         }
@@ -58,12 +49,11 @@ namespace TeacherControl.API
 
             }
 
-
-
-            app
-                .ConfigureSecurePolicies()
+            app.ConfigureSecurePolicies()
                 .UseAuthentication()
-                .UseMvc(routes => routes.MapRoute("api", "api/{controller}"));//TODO: check if this is right
+                .UseMvcWithDefaultRoute(); 
+            //TODO: redirect to the default route (HomeCOntroller) if we got a 404 route
+            //and also on the start up redirect to the HomeController
         }
 
 

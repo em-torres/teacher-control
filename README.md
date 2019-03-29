@@ -34,5 +34,8 @@
 - [ ] Adding BLog module per courses
 - [x] Update the saveChanges usage on the repositories
 - [ ] Configure EF core to run in memory when the environment flag i settled to TEST | DEV
+- [ ] Change the register flow with the user's Email instead of Username
+- [ ] Adding DTO validations on the services
+- [ ] Configure IIS Server support
 - [ ] Removes/completes TODOs and TBDs comments
 - [ ] Deploy :tada::metal:

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace TeacherControl.Core.DTOs
 {
-    public class UserCredentialsDTO
+    public class UserAuthCredentialDTO
     {
         public string Password { get; set; }
         public string Username { get; set; }

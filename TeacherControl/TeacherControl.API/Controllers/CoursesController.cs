@@ -59,9 +59,8 @@ namespace TeacherControl.API.Controllers
             return this.Created(() =>
             {
                 bool result = _CourseRepo.Add(dto).Equals((int)TransactionStatus.SUCCESS);
-                dto.Status = Core.Enums.Status.Active;
 
-                return dto.ToJson();
+                return result ? dto.ToJson() : new JObject();
             });
         }
 

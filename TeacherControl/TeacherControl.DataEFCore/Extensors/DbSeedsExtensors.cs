@@ -25,27 +25,29 @@ namespace TeacherControl.DataEFCore.Extensors
 
         private static void ApplyDummyDbSeeds(ModelBuilder builder)
         {
-            IEnumerable<Status> statuses = StatusFactoryData.CreateUserList();
-            //IEnumerable<Group> groups = GroupFactoryData.CreateGroupList(25);
-            IEnumerable<User> users = UserFactoryData.CreateUserList(100).Select((e, i) => { e.StatusId = (i % 7) + 1; return e; });
-            IEnumerable<UserInfo> userInfos = UserFactoryData.CreateUserInfoList(100);
+            IEnumerable<User> users = UserFactoryData.CreateUserList(100).Select((e, i) => { e.Status = Core.Enums.Status.Active.ToString(); return e; });
+            IEnumerable<UserInfo> userInfos = UserFactoryData.CreateUserInfoList(100).Select((e, i) => { e.UserId = i + 1; return e; });
 
-            IEnumerable<Course> courses = CourseFactoryData.CreateCourseList(50).Select((e, i) => { e.StatusId = (i % 7) + 1; return e; });
+            IEnumerable<Course> courses = CourseFactoryData.CreateCourseList(50).Select((e, i) => { e.Status = Core.Enums.Status.Active.ToString(); e.ProfessorId = i + 1; return e; });
             IEnumerable<CourseTag> courseTags = CourseFactoryData.CreateCourseTagList(50).Select((e, i) => { e.CourseId = i % 50 + 1; return e; });
 
-            IEnumerable<Assignment> assignments = AssignmentFactoryData.CreateAssignmentList(120).Select((e, i) => { e.CourseId = i % 50 + 1; e.StatusId = (i % 7) + 1; return e; });
+            IEnumerable<Assignment> assignments = AssignmentFactoryData.CreateAssignmentList(120).Select((e, i) => { e.CourseId = i % 50 + 1; e.Status = Core.Enums.Status.Active.ToString(); return e; });
+
             IEnumerable<AssignmentComment> assignmentComments = AssignmentFactoryData
                 .CreateAssignmentCommentList(250)
-                .Select((e, i) => { e.AssignmentId = i % 50 + 1; e.AuthorId = i % 100 + 1; e.StatusId = i % 7 + 1; return e; });
+                .Select((e, i) => { e.AssignmentId = i % 50 + 1; e.AuthorId = i % 100 + 1; e.Status = Core.Enums.Status.Active.ToString(); return e; });
+            IEnumerable<AssignmentCommentUpvote> assignmentCommentUpvs = AssignmentFactoryData.CreateAssignmentCommentUpvoteList(100).Select((e, i) => { e.AssignmentCommentId = i + 1; e.UserId = i + 1; return e; });
+            IEnumerable<AssignmentCommentDownvote> assignmentCommentDownvs = AssignmentFactoryData.CreateAssignmentCommentDownvoteList(100).Select((e, i) => { e.AssignmentCommentId = i + 1; e.UserId = i + 1; return e; });
 
             builder
-                .Entity<Status>(opt => opt.HasData(statuses))
                 //.Entity<Group>(opt => opt.HasData(groups))
+                .Entity<User>(opt => opt.HasData(users))
+                .Entity<UserInfo>(opt => opt.HasData(userInfos))
                 .Entity<Course>(opt => opt.HasData(courses))
                 .Entity<Assignment>(opt => opt.HasData(assignments))
                 .Entity<AssignmentComment>(opt => opt.HasData(assignmentComments))
-                .Entity<User>(opt => opt.HasData(users))
-                .Entity<UserInfo>(opt => opt.HasData(userInfos));
+                .Entity<AssignmentCommentUpvote>(opt => opt.HasData(assignmentCommentUpvs))
+                .Entity<AssignmentCommentDownvote>(opt => opt.HasData(assignmentCommentDownvs));
         }
     }
 }

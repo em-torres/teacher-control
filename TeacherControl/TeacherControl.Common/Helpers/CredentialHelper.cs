@@ -35,7 +35,6 @@ namespace TeacherControl.Common.Helpers
                 byte[] computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(Password));
                 return computedHash.SequenceEqual(Convert.FromBase64String(StoredHash));
             }
-
         }
     }
 }

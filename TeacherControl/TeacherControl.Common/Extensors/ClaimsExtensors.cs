@@ -8,7 +8,7 @@ namespace TeacherControl.Common.Extensors
 {
     public static class ClaimsExtensors
     {
-        public static string GetUsername(this IEnumerable<Claim> claims) => claims is null
+        public static string GetByName(this IEnumerable<Claim> claims) => claims is null
             ? null
             : claims.Where(i => i.Type.ToLower().Equals("username")).First().Value;
     }

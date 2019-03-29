@@ -13,24 +13,17 @@ namespace TeacherControl.DataEFCore.Extensors
             modelBuilder
                 .BuildAssignment()
                 .BuildAssignmentTag()
-                .BuildAssignmentComment()
-                .BuildAssignmentCounts();
+                .BuildAssignmentNote()
+                .BuildAssignmentComment();
 
             modelBuilder
                 .BuildCourse()
                 .BuildCourseTag()
                 .BuildCourseUserCredit();
 
-            modelBuilder.BuildStatus();
-
-            modelBuilder
-                .BuildGroup();
-
             modelBuilder
                 .BuildUser()
-                .BuildUserInfo()
-                .BuildUserCourse()
-                .BuildUserGroup();
+                .BuildUserInfo();
 
             modelBuilder
                 .BuildQuestionnaire()

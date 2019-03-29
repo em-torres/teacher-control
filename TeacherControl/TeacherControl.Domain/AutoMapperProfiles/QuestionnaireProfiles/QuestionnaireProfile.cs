@@ -12,10 +12,10 @@ namespace TeacherControl.Domain.AutoMapperProfiles
         public QuestionnaireProfile()
         {
             CreateMap<Questionnaire, QuestionnaireDTO>()
-                .ForMember(i => i.Status, i => i.MapFrom(src => src.StatusId));
+                .ForMember(i => i.Status, i => i.MapFrom(src => src.Status));
 
             CreateMap<QuestionnaireDTO, Questionnaire>()
-                .ForPath(i => i.StatusId, i => i.MapFrom(src => src.Status))
+                .ForPath(i => i.Status, i => i.MapFrom(src => src.Status))
                 .ForMember(i => i.Assignment, i => i.Ignore());
         }
     }
