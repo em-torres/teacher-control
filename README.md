@@ -38,4 +38,7 @@
 - [ ] Adding DTO validations on the services
 - [ ] Configure IIS Server support
 - [ ] Removes/completes TODOs and TBDs comments
+- [ ] Add roles on the auth tokens
+- [ ] Review the query values that are you willing to show
+- [ ] Create a middleware that logs the incoming requests
 - [ ] Deploy :tada::metal:

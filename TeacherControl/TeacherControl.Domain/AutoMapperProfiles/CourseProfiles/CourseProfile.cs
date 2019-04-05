@@ -13,9 +13,11 @@ namespace TeacherControl.Domain.AutoMapperProfiles
         public CourseProfile()
         {
             CreateMap<Course, CourseDTO>()
+                .ForMember(i => i.Professor, i => i.Ignore())
                 .ForMember(i => i.Tags, i => i.MapFrom(src => src.Tags.Select(t => t.Name)));
 
             CreateMap<CourseDTO, Course>()
+                .ForPath(i => i.Professor.Id, i => i.MapFrom(m => m.Professor))
                 .ForMember(i => i.Tags, i => i.MapFrom(m => m.Tags.Select(t => new CourseTag { Name = t })));
         }
     }

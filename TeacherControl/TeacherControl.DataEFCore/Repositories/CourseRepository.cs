@@ -5,6 +5,7 @@ using System.Linq;
 using TeacherControl.Common.Enums;
 using TeacherControl.Common.Extensors;
 using TeacherControl.Core.DTOs;
+using TeacherControl.Core.Enums;
 using TeacherControl.Core.Models;
 using TeacherControl.Core.Queries;
 using TeacherControl.DataEFCore.Extensors;
@@ -19,6 +20,14 @@ namespace TeacherControl.DataEFCore.Repositories
         public int Add(CourseDTO dto)
         {
             Course course = _Mapper.Map<CourseDTO, Course>(dto);
+            course.Professor = _Context.Users
+                .Where(i => i.Id.Equals(dto.Professor) && i.Status.Equals(Status.Active.ToString()))
+                .FirstOrDefault();
+
+            if (course.Professor is null || course.Professor.Id <= 0)
+            {
+                return (int)TransactionStatus.ENTITY_NOT_FOUND;
+            }
 
             return Add(course);
         }
@@ -39,12 +48,17 @@ namespace TeacherControl.DataEFCore.Repositories
 
         public int Remove(int id)
         {
-            string deleted = Core.Enums.Status.Deleted.ToString();
+            ;
             Course course = Find(i => i.Id.Equals(id));
 
-            if (course.Status != deleted)
+            if (course is null && course.Id <= 0)
             {
-                return Remove(course);
+                return (int)TransactionStatus.SUCCESS;
+            }
+
+            if (course.Status != Status.Deleted.ToString())
+            {
+                return (int)TransactionStatus.UNCHANGED;
             }
 
             return (int)TransactionStatus.ENTITY_NOT_FOUND;
@@ -82,6 +96,7 @@ namespace TeacherControl.DataEFCore.Repositories
 
             if (course is null || course.Id <= 0) return (int)TransactionStatus.ENTITY_NOT_FOUND;
             if (student is null || student.Id <= 0) return (int)TransactionStatus.ENTITY_NOT_FOUND;
+            if (_Context.CourseUserCredits.Any(i => i.StudentId.Equals(student.Id))) return (int)TransactionStatus.UNCHANGED;
 
             CourseUserCredit userCredits = new CourseUserCredit
             {
@@ -95,17 +110,30 @@ namespace TeacherControl.DataEFCore.Repositories
 
         public int SubscribeUsers(int CourseId, IEnumerable<int> Users)
         {
+            Users = Users.Where(i => i > 0).Distinct();
             Course course = Find(i => i.Id.Equals(CourseId));
-            bool areAllStudentsExisting = _Context.Users.All(i => Users.Contains(i.Id));
+            bool areAllStudentsExisting = Users.All(i => _Context.Users.Any(u => u.Id.Equals(i)));
 
             if (course is null || course.Id <= 0)
             {
-                if (areAllStudentsExisting)
-                {
-                    Users.ToList().ForEach(i => course.StudentCredits.Add(new CourseUserCredit { Course = course, StudentId = i }));
-                    return _Context.SaveChanges();
-                }
+                return (int)TransactionStatus.ENTITY_NOT_FOUND;
             }
+
+            if (areAllStudentsExisting)
+            {
+                IEnumerable<int> subscribedStudents = _Context.CourseUserCredits
+                    .Where(i => Users.Contains(i.StudentId))
+                    .Select(i => i.StudentId)
+                    .Distinct();
+
+                Users.Except(subscribedStudents)
+                    .ToList().ForEach(i =>
+                    {
+                        course.StudentCredits.Add(new CourseUserCredit { Course = course, StudentId = i });
+                    });
+                return _Context.SaveChanges();
+            }
+
 
             return (int)TransactionStatus.ENTITY_NOT_FOUND;
         }
@@ -118,10 +146,23 @@ namespace TeacherControl.DataEFCore.Repositories
             if (course is null || course.Id <= 0) return (int)TransactionStatus.ENTITY_NOT_FOUND;
             if (student is null || student.Id <= 0) return (int)TransactionStatus.ENTITY_NOT_FOUND;
 
-            if (Credits >= 0)
+            if (course.Status.Equals(Status.Active.ToString()) && student.Status.Equals(Status.Active.ToString()))
             {
-                _Context.CourseUserCredits.Add(new CourseUserCredit { Course = course, Student = student, Credits = Credits });
-                return _Context.SaveChanges();
+                if (Credits >= 0)
+                {
+                    CourseUserCredit userCredits = _Context.CourseUserCredits
+                        .Where(i => i.CourseId.Equals(course.Id))
+                        .Where(i => i.StudentId.Equals(student.Id))
+                        .FirstOrDefault();
+
+                    if (userCredits is null || userCredits.Id <= 0)
+                        return (int)TransactionStatus.ENTITY_NOT_FOUND;
+
+                    userCredits.Credits = Credits;
+                    return _Context.SaveChanges();
+                }
+
+                return (int)TransactionStatus.UNCHANGED;
             }
 
             return (int)TransactionStatus.ENTITY_NOT_FOUND;

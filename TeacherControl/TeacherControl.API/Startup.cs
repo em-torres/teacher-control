@@ -32,8 +32,6 @@ namespace TeacherControl.API
                 .AddPluralizationService()
                 .AddMiddlewares()
                 .AddCorsConfiguration()
-                .AddFluentDTOsValidationRules()
-                .AddFluentQueryFiltersValidationRules()
                 .ConfigureBearerAuthentication(Configuration)
                 .ConfigureCaching(Configuration)
                 .Configure<AppSettings>(Configuration.GetSection("AppSettings"))
@@ -46,12 +44,11 @@ namespace TeacherControl.API
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-
             }
 
             app.ConfigureSecurePolicies()
                 .UseAuthentication()
-                .UseMvcWithDefaultRoute(); 
+                .UseMvcWithDefaultRoute();
             //TODO: redirect to the default route (HomeCOntroller) if we got a 404 route
             //and also on the start up redirect to the HomeController
         }

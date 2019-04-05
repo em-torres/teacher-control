@@ -51,16 +51,9 @@ namespace TeacherControl.DataEFCore.Extensors
         {
             EntityTypeBuilder<AssignmentComment> model = builder.Entity<AssignmentComment>();
 
-            model.Property(b => b.Title).IsRequired();
-            model.Property(b => b.Body).IsRequired();
+            model.Property(b => b.Title).HasMaxLength(150).IsRequired();
+            model.Property(b => b.Body).HasMaxLength(500).IsRequired();
             model.Property(b => b.Status).IsRequired();
-
-            model.HasIndex(b => b.AuthorId).IsUnique(false);
-
-            model.HasOne(b => b.Author)
-                .WithOne()
-                .HasForeignKey<AssignmentComment>(i => i.AuthorId)
-                .OnDelete(DeleteBehavior.Restrict);
 
             model
                 .HasOne(b => b.Assignment)

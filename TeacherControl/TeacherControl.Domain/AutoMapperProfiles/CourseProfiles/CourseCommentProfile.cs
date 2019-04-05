@@ -13,10 +13,8 @@ namespace TeacherControl.Domain.AutoMapperProfiles.CourseProfiles
         public CourseCommentProfile()
         {
             CreateMap<AssignmentComment, AssignmentCommentDTO>()
-                .ForMember(i => i.Author, i => i.MapFrom(m => m.Author.Username))
                 .ForMember(i => i.Upvote, i => i.MapFrom(m => m.Upvotes.Count()))
-                .ForMember(i => i.Downvote, i => i.MapFrom(m => m.Downvotes.Count()))
-                .ForMember(i => i.CreatedDate, i => i.MapFrom(m => m.Author.CreatedDate));
+                .ForMember(i => i.Downvote, i => i.MapFrom(m => m.Downvotes.Count()));
 
             //CreateMap<AssignmentCommentDTO, AssignmentComment>();
         }

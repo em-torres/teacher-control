@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace TeacherControl.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api")]
     public class HomeController : Controller
     {
         public IActionResult Index()

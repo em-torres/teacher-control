@@ -6,7 +6,7 @@ using TeacherControl.Core.Models;
 
 namespace TeacherControl.DataEFCore.Extensors
 {
-    public static class CourseLinqExtensors
+    public static class CourseLinqExtensor
     {
         public static IQueryable<Course> GetByName(this IQueryable<Course> courses, string courseName) =>
             !string.IsNullOrEmpty(courseName) ? courses.Where(i => i.Name.ToLower().Contains(courseName.ToLower())) : courses;

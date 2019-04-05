@@ -7,7 +7,7 @@ using TeacherControl.Core.Models;
 
 namespace TeacherControl.DataEFCore.Extensors
 {
-    public static class AssignmentLinqExtensors
+    public static class AssignmentLinqExtensor
     {
         public static IQueryable<Assignment> GetByTitle(this IQueryable<Assignment> assignments, string Title)
         {

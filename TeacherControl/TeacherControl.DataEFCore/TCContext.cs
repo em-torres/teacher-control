@@ -46,6 +46,7 @@ namespace TeacherControl.DataEFCore
 
         #region Users
         public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<UserInfo> UserInfos { get; set; }
         public virtual DbSet<UserRole> UserRoles { get; set; }
         #endregion 
 

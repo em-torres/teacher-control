@@ -19,7 +19,7 @@ namespace TeacherControl.API.Configurations
             string ISSUER = configuration.GetSection("AppSettings:Issuer").Value;
 
             services
-                .AddTransient<IAuthUserService, AuthUserService>()
+                .AddScoped<IAuthUserService, AuthUserService>()
                 .AddAuthentication(config =>
                 {
                     config.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -37,7 +37,6 @@ namespace TeacherControl.API.Configurations
 
                             var userService = contex.HttpContext.RequestServices.GetRequiredService<IAuthUserService>();
                             userService.Username = contex.Principal.Identity.Name;
-
                             //add claims here for the user here
 
                             return Task.CompletedTask;

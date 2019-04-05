@@ -30,6 +30,8 @@ namespace TeacherControl.MockData
             .RuleFor(i => i.Id, i => i.IndexVariable += 1)
             .RuleFor(i => i.Title, i => i.Lorem.Sentence())
             .RuleFor(i => i.Body, i => i.Lorem.Paragraph())
+            .RuleFor(i => i.CreatedBy, i => i.Internet.UserName())
+            .RuleFor(i => i.CreatedDate, i => DateTime.UtcNow)
             .Generate(howMany);
 
         public static IEnumerable<AssignmentCommentDownvote> CreateAssignmentCommentDownvoteList(int howMany) => new Faker<AssignmentCommentDownvote>()

@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-using TeacherControl.Core.Enums;
 
 namespace TeacherControl.Core.DTOs
 {
@@ -18,6 +14,6 @@ namespace TeacherControl.Core.DTOs
 
         public int Professor { get; set; }
         public ICollection<string> Tags { get; set; }
-        public ICollection<CourseStudentDTO> Students { get; set; }
+        //public ICollection<CourseStudentDTO> Students { get; set; }
     }
 }

@@ -7,7 +7,7 @@ namespace TeacherControl.Core.Models
 {
     public class CourseUserCredit : IModificationAudit
     {
-        //Add a status here for the user credits?
+        //TBD: Add a status here for the user credits?
         public int Id { get; set; }
         public double Credits { get; set; }
         public int StudentId { get; set; }

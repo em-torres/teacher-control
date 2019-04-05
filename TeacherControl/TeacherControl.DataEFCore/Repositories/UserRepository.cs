@@ -5,10 +5,11 @@ using System.Linq;
 using TeacherControl.Common.Enums;
 using TeacherControl.Common.Helpers;
 using TeacherControl.Core.DTOs;
-using TeacherControl.Core.Enums;
 using TeacherControl.Core.Models;
 using TeacherControl.Core.Queries;
 using TeacherControl.Domain.Repositories;
+using TeacherControl.DataEFCore.Extensors;
+using TeacherControl.Common.Extensors;
 
 namespace TeacherControl.DataEFCore.Repositories
 {
@@ -20,9 +21,19 @@ namespace TeacherControl.DataEFCore.Repositories
 
         public IEnumerable<UserInfoDTO> GetAll(UserQuery query)
         {
-            IEnumerable<User> users = GetAll();
+            var list = GetAll();
 
-            return _Mapper.Map<IEnumerable<User>, IEnumerable<UserInfoDTO>>(users);
+            IQueryable<UserInfo> users = list
+                .GetByPhoneNumber(query.Username)
+                .GetByGender(query.Gender)
+                .GetByCodeId(query.CodeId)
+                .GetByEmail(query.Email)
+                .GetByBirthday(query.FromBirthday, query.FromBirthday)
+                .Pagination(query.Page, query.PageSize)
+                .Where(i => i.UserInfo != null) //this is because admins or modders not neccessary needs extra infos
+                .Select(i => i.UserInfo);
+
+            return _Mapper.Map<IEnumerable<UserInfo>, IEnumerable<UserInfoDTO>>(users);
         }
 
         public int Add(UserCredentialDTO dto)
@@ -85,7 +96,15 @@ namespace TeacherControl.DataEFCore.Repositories
                 return (int)TransactionStatus.ENTITY_NOT_FOUND;
             }
 
-            user.UserInfo = _Mapper.Map<UserInfoDTO, UserInfo>(dto);
+            if (user.UserInfo != null && user.UserInfo.Id > 0)
+            {
+                return (int)TransactionStatus.UNCHANGED;
+            }
+
+            UserInfo UserInfo = _Mapper.Map<UserInfoDTO, UserInfo>(dto);
+            UserInfo.UserId = user.Id;
+
+            _Context.UserInfos.Add(UserInfo);
             return _Context.SaveChanges();
         }
 
@@ -98,8 +117,13 @@ namespace TeacherControl.DataEFCore.Repositories
                 return (int)TransactionStatus.ENTITY_NOT_FOUND;
             }
 
-            user.UserInfo = _Mapper.Map<UserInfoDTO, UserInfo>(dto);
-            return _Context.SaveChanges();
+            if (user.UserInfo != null && user.UserInfo.Id > 0)
+            {
+                user.UserInfo = _Mapper.Map<UserInfoDTO, UserInfo>(dto);
+                return _Context.SaveChanges();
+            }
+
+            return (int)TransactionStatus.ENTITY_NOT_FOUND;
         }
 
         public int AddUserRoles(int UserId, IEnumerable<string> roles)

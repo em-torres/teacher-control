@@ -14,9 +14,6 @@ namespace TeacherControl.Core.Models
         public virtual ICollection<AssignmentCommentUpvote> Upvotes { get; set; }
         public virtual ICollection<AssignmentCommentDownvote> Downvotes { get; set; }
 
-        public int AuthorId { get; set; }
-        public virtual User Author { get; set; }
-
         public int AssignmentId { get; set; }
         public virtual Assignment Assignment { get; set; }
 

@@ -12,7 +12,9 @@ namespace TeacherControl.Domain.AutoMapperProfiles.UserProfiles
     {
         public UserInfoProfile()
         {
-            CreateMap<UserInfo, UserInfoDTO>();
+            CreateMap<UserInfo, UserInfoDTO>()
+                .ForMember(i => i.Email, i => i.MapFrom(m => m.User.Email))
+                .ForMember(i => i.Roles, i => i.MapFrom(m => m.User.Roles.Select(r => r.Role.Name)));
 
             CreateMap<UserInfoDTO, UserInfo>();
         }

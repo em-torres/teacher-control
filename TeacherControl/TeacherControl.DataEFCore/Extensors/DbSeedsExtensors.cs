@@ -35,9 +35,9 @@ namespace TeacherControl.DataEFCore.Extensors
 
             IEnumerable<AssignmentComment> assignmentComments = AssignmentFactoryData
                 .CreateAssignmentCommentList(250)
-                .Select((e, i) => { e.AssignmentId = i % 50 + 1; e.AuthorId = i % 100 + 1; e.Status = Core.Enums.Status.Active.ToString(); return e; });
-            IEnumerable<AssignmentCommentUpvote> assignmentCommentUpvs = AssignmentFactoryData.CreateAssignmentCommentUpvoteList(100).Select((e, i) => { e.AssignmentCommentId = i + 1; e.UserId = i + 1; return e; });
-            IEnumerable<AssignmentCommentDownvote> assignmentCommentDownvs = AssignmentFactoryData.CreateAssignmentCommentDownvoteList(100).Select((e, i) => { e.AssignmentCommentId = i + 1; e.UserId = i + 1; return e; });
+                .Select((e, i) => { e.AssignmentId = i % 50 + 1; e.Status = Core.Enums.Status.Active.ToString(); return e; });
+            IEnumerable<AssignmentCommentUpvote> assignmentCommentUpvs = AssignmentFactoryData.CreateAssignmentCommentUpvoteList(100).Select((e, i) => { e.AssignmentCommentId = i + 1; return e; });
+            IEnumerable<AssignmentCommentDownvote> assignmentCommentDownvs = AssignmentFactoryData.CreateAssignmentCommentDownvoteList(100).Select((e, i) => { e.AssignmentCommentId = i + 1; return e; });
 
             builder
                 //.Entity<Group>(opt => opt.HasData(groups))

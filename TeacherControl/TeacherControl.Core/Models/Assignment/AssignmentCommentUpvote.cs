@@ -8,10 +8,7 @@ namespace TeacherControl.Core.Models
     public class AssignmentCommentUpvote : IModificationAudit
     {
         public int Id { get; set; }
-
-        public int UserId{ get; set; }
-        public virtual User User { get; set; }
-
+        
         public int AssignmentCommentId { get; set; }
         public virtual AssignmentComment AssignmentComment { get; set; }
 

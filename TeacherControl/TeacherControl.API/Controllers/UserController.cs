@@ -36,11 +36,13 @@ namespace TeacherControl.API.Controllers
             });
         }
 
-        [HttpPost, Route("{UserId:int:min(1)}/create-userinfo")]
+        [HttpPost, Route("{UserId:int:min(1)}/add-userinfo")]
         public IActionResult CreateUserInfo([FromRoute] int UserId, [FromBody] UserInfoDTO dto)
         {
-            //return this.Created(() => _UserRepo.Add(username, dto));
-            return null;
+            return this.Created(() => 
+                _UserRepo.AddUserInfo(UserId, dto).Equals((int) TransactionStatus.SUCCESS)
+                ? dto.ToJson()
+                : new JObject());
         }
 
         [HttpPost, Route("is-username-available")]
