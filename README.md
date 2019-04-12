@@ -39,6 +39,7 @@
 - [ ] Configure IIS Server support
 - [ ] Removes/completes TODOs and TBDs comments
 - [ ] Add roles on the auth tokens
+- [ ] Create a key/value on the cache db to store tokens that are not more used by the user, and deleted when they expire. Put all this on a different redis instance
 - [ ] Review the query values that are you willing to show
 - [ ] Create a middleware that logs the incoming requests
 - [ ] Deploy :tada::metal:

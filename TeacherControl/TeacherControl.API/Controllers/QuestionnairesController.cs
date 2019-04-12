@@ -13,12 +13,10 @@ namespace TeacherControl.API.Controllers
     public class QuestionnairesController : Controller
     {
         protected readonly IQuestionnaireRepository _QuestionnaireRepo;
-        protected readonly ICommitmentRepository _CommitmentRepo;
 
-        public QuestionnairesController(IQuestionnaireRepository questionnaireRepo, ICommitmentRepository commitmentRepo)
+        public QuestionnairesController(IQuestionnaireRepository questionnaireRepo)
         {
             _QuestionnaireRepo = questionnaireRepo;
-            _CommitmentRepo = commitmentRepo;
         }
 
         [HttpGet]
@@ -52,29 +50,29 @@ namespace TeacherControl.API.Controllers
             return this.Ok(() => JArray.FromObject(_QuestionnaireRepo.GetQuestionAnswerMatches(assignmentId, questionnaireId)));
         }
 
-        [HttpGet, Route("{questionnaireId:int:min(1)}/commitments/{commitmentId:int:min(1)}")]
-        public IActionResult GetCommitments([FromRoute] int questionnaireId, [FromRoute] int commitmentId)
-        {
-            return this.Ok(() => JArray.FromObject(_CommitmentRepo.GetByCommitmentId(questionnaireId, commitmentId)));
-        }
+        //[HttpGet, Route("{questionnaireId:int:min(1)}/commitments/{commitmentId:int:min(1)}")]
+        //public IActionResult GetCommitments([FromRoute] int questionnaireId, [FromRoute] int commitmentId)
+        //{
+        //    return this.Ok(() => JArray.FromObject(_CommitmentRepo.GetByCommitmentId(questionnaireId, commitmentId)));
+        //}
 
-        [HttpGet, Route("{questionnaireId:int:min(1)}/commitments/{username:length(3, 60)}")] //username length-range
-        //TODO: review if the length is correct
-        public IActionResult GetCommitmentsByUsername([FromRoute] int questionnaireId, [FromRoute] string username)
-        {
-            return this.Ok(() => JArray.FromObject(_CommitmentRepo.GetByUsername(questionnaireId, username)));
-        }
+        //[HttpGet, Route("{questionnaireId:int:min(1)}/commitments/{username:length(3, 60)}")] //username length-range
+        ////TODO: review if the length is correct
+        //public IActionResult GetCommitmentsByUsername([FromRoute] int questionnaireId, [FromRoute] string username)
+        //{
+        //    return this.Ok(() => JArray.FromObject(_CommitmentRepo.GetByUsername(questionnaireId, username)));
+        //}
 
-        [HttpGet, Route("{questionnaireId:int:min(1)}/commitments/{userId:int:min(1)}/last-commitment")]
-        public IActionResult GetLastCommitments([FromRoute] int questionnaireId, [FromRoute] int userId)
-        {
-            return this.Ok(() => JArray.FromObject(_CommitmentRepo.GetLastCommitmentByUserId(questionnaireId, userId)));
-        }
+        //[HttpGet, Route("{questionnaireId:int:min(1)}/commitments/{userId:int:min(1)}/last-commitment")]
+        //public IActionResult GetLastCommitments([FromRoute] int questionnaireId, [FromRoute] int userId)
+        //{
+        //    return this.Ok(() => JArray.FromObject(_CommitmentRepo.GetLastCommitmentByUserId(questionnaireId, userId)));
+        //}
 
-        [HttpPost, Route("{questionnaireId:int:min(1)}/commitments")]
-        public IActionResult AddCommitment([FromRoute] int questionnaireId, [FromBody] CommitmentDTO dto)
-        {
-            return this.NoContent(() => _CommitmentRepo.Add(questionnaireId, dto, this.GetUsername()) > 0);
-        }
+        //[HttpPost, Route("{questionnaireId:int:min(1)}/commitments")]
+        //public IActionResult AddCommitment([FromRoute] int questionnaireId, [FromBody] CommitmentDTO dto)
+        //{
+        //    return this.NoContent(() => _CommitmentRepo.Add(questionnaireId, dto, this.GetUsername()) > 0);
+        //}
     }
 }
