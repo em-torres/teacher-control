@@ -20,8 +20,7 @@ namespace TeacherControl.DataEFCore.Generators
             {
                 throw new ArgumentNullException(nameof(entry));
             }
-
-            return Guid.NewGuid().ToString().Replace("-", string.Empty);
+            return Guid.NewGuid().ToString().Split("-").Last().ToLower();
         }
     }
 }

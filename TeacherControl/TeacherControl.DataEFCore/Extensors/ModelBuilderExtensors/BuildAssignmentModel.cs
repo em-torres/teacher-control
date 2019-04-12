@@ -18,19 +18,15 @@ namespace TeacherControl.DataEFCore.Extensors
             model.Property(b => b.EndDate).IsRequired();
             model.Property(b => b.Body).IsRequired().HasMaxLength(5000);
             model.Property(b => b.Points).IsRequired();
-            model.Property(b => b.StatusId).IsRequired();
+            model.Property(b => b.Status).IsRequired();
 
             model.HasIndex(b => b.Title).IsUnique();
             model.HasIndex(b => b.HashIndex).IsUnique();
 
             model.HasOne(b => b.Course)
                 .WithMany(b => b.Assignments)
-                .HasForeignKey(b => b.CourseId);
-
-            model
-                .HasOne(b => b.Counts)
-                .WithOne(i => i.Assignment)
-                .HasForeignKey<AssignmentCounts>(i => i.AssignmentId);
+                .HasForeignKey(b => b.CourseId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             return builder;
         }
@@ -51,39 +47,39 @@ namespace TeacherControl.DataEFCore.Extensors
             return builder;
         }
 
-        public static ModelBuilder BuildAssignmentCounts(this ModelBuilder modelBuilder)
-        {
-            EntityTypeBuilder<AssignmentCounts> model = modelBuilder.Entity<AssignmentCounts>();
-
-            model.HasKey(b => b.Id);
-            model.Property(b => b.UpvotesCount).IsRequired().HasDefaultValue(0);
-            model.Property(b => b.ViewsCount).IsRequired().HasDefaultValue(0);
-
-            return modelBuilder;
-        }
         public static ModelBuilder BuildAssignmentComment(this ModelBuilder builder)
         {
             EntityTypeBuilder<AssignmentComment> model = builder.Entity<AssignmentComment>();
 
-            model.Property(b => b.Title).IsRequired();
-            model.Property(b => b.Upvote).HasDefaultValue(0).IsRequired();
-            model.Property(b => b.Body).IsRequired();
-            model.Property(b => b.StatusId).IsRequired();
-
-            model.HasIndex(b => b.AuthorId).IsUnique(false);
-
-            model.HasOne(b => b.Author)
-                .WithOne()
-                .HasForeignKey<AssignmentComment>(i => i.AuthorId)
-                .OnDelete(DeleteBehavior.Restrict);
+            model.Property(b => b.Title).HasMaxLength(150).IsRequired();
+            model.Property(b => b.Body).HasMaxLength(500).IsRequired();
+            model.Property(b => b.Status).IsRequired();
 
             model
                 .HasOne(b => b.Assignment)
                 .WithMany(b => b.Comments)
                 .HasForeignKey(b => b.AssignmentId);
 
+            model
+                .HasMany(i => i.Upvotes)
+                .WithOne(i => i.AssignmentComment)
+                .HasForeignKey(i => i.AssignmentCommentId);
+
+            model
+                .HasMany(i => i.Downvotes)
+                .WithOne(i => i.AssignmentComment)
+                .HasForeignKey(i => i.AssignmentCommentId);
+
             return builder;
         }
 
+        public static ModelBuilder BuildAssignmentNote(this ModelBuilder builder)
+        {
+            EntityTypeBuilder<AssignmentNote> model = builder.Entity<AssignmentNote>();
+
+            model.Property(i => i.Note).IsRequired();
+
+            return builder;
+        }
     }
 }

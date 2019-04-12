@@ -20,12 +20,12 @@ namespace TeacherControl.DataEFCore.Extensors
                     {
                         if (entry.State == EntityState.Added)
                         {
-                            entry.CurrentValues[nameof(IStatusAudit.StatusId)] = (int)Status.Active;
+                            entry.CurrentValues[nameof(IStatusAudit.Status)] = Status.Active.ToString();
                         }
 
                         if (entry.State == EntityState.Deleted)
                         {
-                            entry.CurrentValues[nameof(IStatusAudit.StatusId)] = (int)Status.Deleted;
+                            entry.CurrentValues[nameof(IStatusAudit.Status)] = Status.Deleted.ToString();
                             entry.State = EntityState.Modified;
                         }
                     }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
@@ -18,10 +19,12 @@ namespace TeacherControl.API.Controllers
     public class AssignmentsController : Controller
     {
         protected readonly IAssignmentRepository _AssignmentRepo;
+        protected readonly IMapper _Mapper;
 
-        public AssignmentsController(IAssignmentRepository assignmentRepo)
+        public AssignmentsController(IAssignmentRepository assignmentRepo, IMapper mapper)
         {
             _AssignmentRepo = assignmentRepo;
+            _Mapper = mapper;
         }
 
         [HttpGet]
@@ -40,19 +43,13 @@ namespace TeacherControl.API.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddAssignment([FromBody] JObject json)
+        public IActionResult AddAssignment([FromBody] AssignmentDTO dto)
         {
-            if (json is null)
-            {
-                return BadRequest("The Json Body is Empty");
-            }
-
             return this.Created(() =>
             {
-                AssignmentDTO dto = json.ToObject<AssignmentDTO>();
                 bool result = _AssignmentRepo.Add(dto).Equals((int)TransactionStatus.SUCCESS);
 
-                return dto.ToJson();
+                return result ? dto.ToJson() : new JObject();
             });
         }
 
@@ -65,30 +62,57 @@ namespace TeacherControl.API.Controllers
         [HttpDelete, Route("{assignmentId:length(12, 150)}")] //TODO: validate this range thought the DB
         public IActionResult DeleteAssignment([FromRoute] string assignmentId)
         {
-            if (Regex.IsMatch(assignmentId.ToLower(), @"([a-f0-9]{12})$"))
+            Match match = new Regex(@"([a-f0-9]{12})$").Match(assignmentId);
+
+            if (match.Success)
             {
-                return this.NoContent(() => _AssignmentRepo.DeleteByTokenId(assignmentId).Equals(TransactionStatus.SUCCESS));
+                return this.NoContent(() => _AssignmentRepo.DeleteByTokenId(match.Value).Equals(TransactionStatus.SUCCESS));
             }
 
             return BadRequest("The Request has an invalid ID");
         }
 
+        [HttpPatch, Route("{assignmentId:int:min(1)}/add-tags")]
+        public IActionResult AddAssignmentTags([FromRoute] int assignmentId, [FromBody] IEnumerable<string> tags)
+        {
+            if (tags != null && tags.Count() > 0)
+            {
+                tags = tags.Where(i => Regex.IsMatch(i, (@"[\w\-#]{3,30}")));
+
+                return this.NoContent(() => _AssignmentRepo.AddTags(assignmentId, tags).Equals(TransactionStatus.SUCCESS));
+            }
+
+            return BadRequest("One or More Tags are invalid");
+        }
+
         [HttpPut, Route("{assignmentId:int:min(1)}")]
-        public IActionResult UpdateAssignment([FromQuery] int assignmentId, [FromBody] AssignmentDTO dto)
+        public IActionResult UpdateAssignment([FromRoute] int assignmentId, [FromBody] AssignmentDTO dto)
         {
             return this.NoContent(() => _AssignmentRepo.Update(assignmentId, dto).Equals(TransactionStatus.SUCCESS));
         }
 
         [HttpPatch, Route("{assignmentId:int:min(1)}/update-tags")]
-        public IActionResult UpdateAssigmentTags([FromQuery] int assignmentId, [FromBody] IEnumerable<string> tags)
+        public IActionResult UpdateAssigmentTags([FromRoute] int assignmentId, [FromBody] IEnumerable<string> tags)
         {
             if (tags != null && tags.Count() > 0)
             {
-                    tags = tags.Where(i => Regex.IsMatch(i, @"[\w\-#]{3,30}"));
-                    return this.NoContent(() => _AssignmentRepo.UpdateTags(assignmentId, tags).Equals(TransactionStatus.SUCCESS));
+                tags = tags.Where(i => Regex.IsMatch(i, @"[\w\-#]{3,30}"));
+                return this.NoContent(() => _AssignmentRepo.UpdateTags(assignmentId, tags).Equals(TransactionStatus.SUCCESS));
             }
 
-            return BadRequest("The Json Body is invalid");
+            return BadRequest("One or More Tags are invalid");
+        }
+
+        [HttpPatch, Route("{assignmentId:int:min(1)}/replace-tags")]
+        public IActionResult ReplaceTags([FromRoute] int assignmentId, [FromBody] IEnumerable<string> tags)
+        {
+            if (tags != null && tags.Count() > 0)
+            {
+                tags = tags.Where(i => Regex.IsMatch(i, @"[\w\-#]{3,30}"));
+                return this.NoContent(() => _AssignmentRepo.ReplaceTags(assignmentId, tags).Equals(TransactionStatus.SUCCESS));
+            }
+
+            return BadRequest("One or More Tags are invalid");
         }
 
         //TODO: get if the user successfully complete the assignment
@@ -102,11 +126,11 @@ namespace TeacherControl.API.Controllers
         //TODO: get the questionnaire result set
 
         [HttpGet, Route("{assignmentId:int:min(1)}/comments")]
-        public IActionResult GetCourseComments([FromRoute] int courseId, [FromQuery] AssignmentCommentQuery commentQuery)
+        public IActionResult GetAssignmentComments([FromRoute] int assignmentId, [FromQuery] AssignmentCommentQuery commentQuery)
         {
             return this.Ok(() =>
             {
-                IEnumerable<AssignmentCommentDTO> data = _AssignmentRepo.GetAllAssignmentComments(courseId, commentQuery);
+                IEnumerable<AssignmentCommentDTO> data = _AssignmentRepo.GetAllAssignmentComments(assignmentId, commentQuery);
                 var query = new
                 {
                     PageSize = commentQuery.PageSize <= 0 ? 50 : commentQuery.PageSize,
@@ -118,40 +142,63 @@ namespace TeacherControl.API.Controllers
             });
         }
 
-        [HttpPost, Route("{assignmentId:int:min(1)}/comments")]
-        public IActionResult AddCourseComment([FromRoute] int courseId, [FromBody] AssignmentCommentDTO dto)
+        [HttpGet, Route("{assignmentId:int:min(1)}/comments/{commentId:int:min(1)}")]
+        public IActionResult GetAssignmentCommentByCommentId([FromRoute] int assignmentId, [FromRoute] int commentId)
         {
-            return this.Created(() => _AssignmentRepo.AddComment(courseId, dto).Equals((int)TransactionStatus.SUCCESS)
-                ? dto.ToJson()
-                : new JObject());
+            return this.Ok(() => _AssignmentRepo.GetAssignmentCommentByCommentId(assignmentId, commentId).ToJson());
+        }
+
+        [HttpPost, Route("{assignmentId:int:min(1)}/comments")]
+        public IActionResult AddAssignmentComment([FromRoute] int assignmentId, [FromBody] AssignmentCommentAddDTO dto)
+        {
+            return this.Created(() => {
+                AssignmentCommentDTO comment = _Mapper.Map<AssignmentCommentAddDTO, AssignmentCommentDTO>(dto);
+                comment.Author = User.Identity.Name;
+
+                return _AssignmentRepo.AddComment(assignmentId, comment).Equals((int)TransactionStatus.SUCCESS)
+                    ? dto.ToJson()
+                    : new JObject();
+            });
         }
 
         [HttpPost, Route("{assignmentId:int:min(1)}/comments/{commentId:int:min(1)}/disable")]
-        public IActionResult DisableCourseComment([FromRoute] int courseId, [FromRoute] int commentId)
+        public IActionResult DisableAssignmentComment([FromRoute] int assignmentId, [FromRoute] int commentId)
         {
             int successTransactionValue = (int)TransactionStatus.SUCCESS;
 
-            return this.NoContent(() => _AssignmentRepo.DisableAssignmentComment(courseId, commentId).Equals(successTransactionValue));
+            return this.NoContent(() => _AssignmentRepo.DisableAssignmentComment(assignmentId, commentId).Equals(successTransactionValue));
         }
 
         [HttpDelete, Route("{assignmentId:int:min(1)}/comments/{commentId:int:min(1)}")]
-        public IActionResult RemoveCourseComment([FromRoute] int courseId, [FromRoute] int commentId)
+        public IActionResult RemoveAssignmentComment([FromRoute] int assignmentId, [FromRoute] int commentId)
         {
             int successTransactionValue = (int)TransactionStatus.SUCCESS;
 
-            return this.NoContent(() => _AssignmentRepo.RemoveAssignmentComment(courseId, commentId).Equals(successTransactionValue));
+            return this.NoContent(() => _AssignmentRepo.RemoveAssignmentComment(assignmentId, commentId).Equals(successTransactionValue));
         }
 
         [HttpPut, Route("{assignmentId:int:min(1)}/comments/{commentId:int:min(1)}")]
-        public IActionResult UpdateCourseComment([FromRoute] int courseId, [FromRoute] int commentId, [FromBody] JObject json)
+        public IActionResult UpdateCourseComment([FromRoute] int assignmentId, [FromRoute] int commentId, [FromBody] JObject json)
         {
             int successTransactionValue = (int)TransactionStatus.SUCCESS;
 
             return this.NoContent(() =>
             {
                 AssignmentCommentDTO dto = json.ToObject<AssignmentCommentDTO>();
-                return _AssignmentRepo.UpdateComment(courseId, commentId, dto).Equals(successTransactionValue);
+                return _AssignmentRepo.UpdateComment(assignmentId, commentId, dto).Equals(successTransactionValue);
             });
+        }
+
+        [HttpPatch, Route("{assignmentId:int:min(1)}/comments/{commentId:int:min(1)}/upvote")]
+        public IActionResult UpvoteAssignmentComment([FromRoute] int assignmentId, [FromRoute] int commentId)
+        {
+            return this.NoContent(() => _AssignmentRepo.UpvoteComment(assignmentId, commentId).Equals((int) TransactionStatus.SUCCESS));
+        }
+
+        [HttpPatch, Route("{assignmentId:int:min(1)}/comments/{commentId:int:min(1)}/downvote")]
+        public IActionResult DownvoteAssignmentComment([FromRoute] int assignmentId, [FromRoute] int commentId)
+        {
+            return this.NoContent(() => _AssignmentRepo.DownvoteComment(assignmentId, commentId).Equals((int)TransactionStatus.SUCCESS));
         }
     }
 }

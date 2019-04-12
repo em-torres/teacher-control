@@ -1,171 +1,78 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using TeacherControl.Common.Extensors;
-using TeacherControl.Common;
-using TeacherControl.Core.Interfaces.Repositories;
-using TeacherControl.Core.Models;
-using TeacherControl.Infrastructure;
-using TeacherControl.Infrastructure.Repositories;
-using TeacherControl.WebApi.Models;
+using TeacherControl.API.Extensors;
+using TeacherControl.Core.DTOs;
+using TeacherControl.Core.Queries;
+using TeacherControl.Domain.Repositories;
 
-namespace TeacherControl.WebApi.Controllers
+namespace TeacherControl.API.Controllers
 {
-    [Route("api/assignments/{id:int:min(1)}/questionnaires")]
+    [Authorize]
+    [Route("api/assignments/{assignmentId:int:min(1)}/questionnaires")]
     public class QuestionnairesController : Controller
     {
-        protected TCContext _TCContext;
-        protected IAssignmentRepository _AssignmentRepo;
-        protected IGroupRepository _GroupRepo;
-        protected IStatusRepository _StatusRepo;
+        protected readonly IQuestionnaireRepository _QuestionnaireRepo;
 
-        public QuestionnairesController()
+        public QuestionnairesController(IQuestionnaireRepository questionnaireRepo)
         {
-            _TCContext = new TCContext();
-            _AssignmentRepo = new AssignmentRepository(_TCContext);
-            _GroupRepo = new GroupRepository(_TCContext);
-            _StatusRepo = new StatusRepository(_TCContext);
+            _QuestionnaireRepo = questionnaireRepo;
         }
 
         [HttpGet]
-        public IActionResult GetAssignmentQuestionnaires([FromRoute(Name = "id")] int assignmentId)
+        public IActionResult GetAll([FromRoute] int assignmentId)
         {
-            return this.Ok(() =>
-            {
-                JArray json = new JArray();
-                if (assignmentId > 0)
-                {
-                    List<Questionnaire> data = _AssignmentRepo.Find(i => i.Id.Equals(assignmentId)).Questionnaires.ToList();
-                    data.ForEach(e =>
-                    {
-                        JObject questionnaire = new JObject
-                        {
-                            ["Questionnaire"] = JObject.FromObject(new { e.AssignmentId, e.Title, e.Body }),
-                            ["Sections"] = JArray.FromObject(
-                                        e.Sections.Select(s => 
-                                        {
-                                            var questions = s.Questions.Select(q => new { q.Title, q.Points, q.IsRequired,
-                                                    Answers = q.Answers.Select(a => new { a.Title, a.MaxLength, a.IsCorrect, }) });
-
-                                            return new { s.Page, Questions = questions };
-                                        })),
-                        };
-
-                        json.Add(questionnaire);
-                    });
-                }
-
-                return json.AsQueryable();
-            });
+            return this.Ok(() => JArray.FromObject(_QuestionnaireRepo.GetAllQuestionnaires(assignmentId).Result));
         }
 
         [HttpPost]
-        public IActionResult SaveAssignmentQuestionnaires([FromRoute(Name = "id")] int assignmentId, [FromBody] IEnumerable<QuestionnaireViewModel> viewModel)
+        public IActionResult AddQuestionnaire([FromRoute] int assignmentId, [FromBody] QuestionnaireDTO dto)
         {
-            if (viewModel == null)
-            {
-                return BadRequest("Invalid Json body");
-            }
-            return this.NoContent(() =>
-            {
-                if (assignmentId > 0)
-                {
-                    Assignment assignment = _AssignmentRepo.Find(i => i.Id.Equals(assignmentId));
-                    assignment.Questionnaires = BuildQuestionnaires(viewModel);
-
-                    using (UnitOfWork unit = new UnitOfWork(_TCContext))
-                    {
-                        //assignment.CreatedBy = User.Identity.Name;
-                        //assignment.UpdatedBy = User.Identity.Name;
-                        assignment.CreatedBy = "Test";
-                        assignment.UpdatedBy = "Test";
-
-                        _AssignmentRepo.Update(i => i.Id.Equals(assignmentId), assignment);
-                        return unit.Commit() > 0;
-                    }
-                }
-
-                return false;
-            });
+            string username = this.GetUsername();
+            return this.NoContent(() => _QuestionnaireRepo.Add(assignmentId, dto, username) > 0);
         }
 
-        private IEnumerable<Questionnaire> BuildQuestionnaires(IEnumerable<QuestionnaireViewModel> list)
+        [HttpGet, Route("{questionnaireId:int:min(1)}/questions")]
+        public IActionResult GetQuestionnaireQuestions([FromRoute] int assignmentId, [FromRoute] int questionnaireId)
         {
-            JToken tmp = new JObject();
-            List<Questionnaire> questionnaires = new List<Questionnaire>(list.Count());
-
-            foreach (QuestionnaireViewModel viewModel in list)
-            {
-                Questionnaire questionnaire = new Questionnaire();
-                questionnaire.Title = viewModel.Title;
-                questionnaire.Body = viewModel.Body;
-                questionnaire.Status = _StatusRepo.GetById(viewModel.Status);
-
-                questionnaire.Sections = GetQuestionnaireSections(viewModel.Sections);
-                //this.SetModelUserAudit(questionnaire);
-                questionnaire.CreatedBy = "test";
-                questionnaire.UpdatedBy = "test";
-
-                questionnaires.Add(questionnaire);
-            }
-
-            return questionnaires;
+            return this.Ok(() => JArray.FromObject(_QuestionnaireRepo.GetQuestions(assignmentId, questionnaireId)));
         }
 
-        private IEnumerable<QuestionnaireSection> GetQuestionnaireSections(IEnumerable<QuestionnaireSectionViewModel> questionnaires)
+        [HttpGet, Route("{questionnaireId:int:min(1)}/correct-answers")]
+        public IActionResult GetQuestionnaireAnswers([FromRoute] int assignmentId, [FromRoute] int questionnaireId)
         {
-            IList<QuestionnaireSection> sections = new List<QuestionnaireSection>(questionnaires.Count());
-            for (int i = 0; i < questionnaires.Count(); i++)
-            {
-                QuestionnaireSection section = new QuestionnaireSection
-                {
-                    Page = i + 1,
-                    Questions = GetQuestionnaireQuestions(questionnaires.ElementAt(i).Questions)
-                };
-
-                sections.Add(section);
-            }
-
-            return sections;
+            return this.Ok(() => JArray.FromObject(_QuestionnaireRepo.GetCorrectQuestionAnswers(assignmentId, questionnaireId)));
         }
 
-        private IEnumerable<Question> GetQuestionnaireQuestions(IEnumerable<QuestionViewModel> questions)
+        [HttpGet, Route("{questionnaireId:int:min(1)}/answer-matches")]
+        public IActionResult GetQuestionnaireAnswerMatches([FromRoute] int assignmentId, [FromRoute] int questionnaireId)
         {
-            IList<Question> resultList = new List<Question>();
-            foreach (QuestionViewModel model in questions)
-            {
-                Question q = new Question
-                {
-                    Answers = GetQuestionAnswers(model.Answers),
-                    IsRequired = model.IsRequired,
-                    Title = model.Title,
-                    Points = model.Points
-                };
-                resultList.Add(q);
-            }
-
-            return resultList;
+            return this.Ok(() => JArray.FromObject(_QuestionnaireRepo.GetQuestionAnswerMatches(assignmentId, questionnaireId)));
         }
 
-        private IEnumerable<QuestionAnswer> GetQuestionAnswers(IEnumerable<QuestionAnswerViewModel> questionAnswers)
-        {
-            IList<QuestionAnswer> answers = new List<QuestionAnswer>(questionAnswers.Count());
-            foreach (QuestionAnswerViewModel model in questionAnswers)
-            {
-                QuestionAnswer a = new QuestionAnswer
-                {
-                    IsCorrect = model.IsCorrect,
-                    MaxLength = model.MaxLength,
-                    Title = model.Title
-                };
+        //[HttpGet, Route("{questionnaireId:int:min(1)}/commitments/{commitmentId:int:min(1)}")]
+        //public IActionResult GetCommitments([FromRoute] int questionnaireId, [FromRoute] int commitmentId)
+        //{
+        //    return this.Ok(() => JArray.FromObject(_CommitmentRepo.GetByCommitmentId(questionnaireId, commitmentId)));
+        //}
 
-                answers.Add(a);
-            }
+        //[HttpGet, Route("{questionnaireId:int:min(1)}/commitments/{username:length(3, 60)}")] //username length-range
+        ////TODO: review if the length is correct
+        //public IActionResult GetCommitmentsByUsername([FromRoute] int questionnaireId, [FromRoute] string username)
+        //{
+        //    return this.Ok(() => JArray.FromObject(_CommitmentRepo.GetByUsername(questionnaireId, username)));
+        //}
 
-            return answers;
-        }
+        //[HttpGet, Route("{questionnaireId:int:min(1)}/commitments/{userId:int:min(1)}/last-commitment")]
+        //public IActionResult GetLastCommitments([FromRoute] int questionnaireId, [FromRoute] int userId)
+        //{
+        //    return this.Ok(() => JArray.FromObject(_CommitmentRepo.GetLastCommitmentByUserId(questionnaireId, userId)));
+        //}
+
+        //[HttpPost, Route("{questionnaireId:int:min(1)}/commitments")]
+        //public IActionResult AddCommitment([FromRoute] int questionnaireId, [FromBody] CommitmentDTO dto)
+        //{
+        //    return this.NoContent(() => _CommitmentRepo.Add(questionnaireId, dto, this.GetUsername()) > 0);
+        //}
     }
 }

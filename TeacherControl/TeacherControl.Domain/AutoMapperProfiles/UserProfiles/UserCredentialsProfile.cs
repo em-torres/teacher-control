@@ -11,9 +11,9 @@ namespace TeacherControl.Domain.AutoMapperProfiles.UserProfiles
     {
         public UserCredentialsProfile()
         {
-            CreateMap<User, UserCredentialsDTO>();
+            CreateMap<User, UserCredentialDTO>();
 
-            CreateMap<UserCredentialsDTO, User>();
+            CreateMap<UserCredentialDTO, User>();
         }
     }
 }

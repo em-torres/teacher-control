@@ -12,7 +12,9 @@ namespace TeacherControl.Domain.Repositories
         int DeleteById(int ID);
         int DeleteByTokenId(string tokenID);
         int Update(int id, AssignmentDTO dto);
+        int AddTags(int assignmentId, IEnumerable<string> tags);
         int UpdateTags(int id, IEnumerable<string> tags);
+        int ReplaceTags(int id, IEnumerable<string> tags);
         AssignmentDTO GetById(int assignmentId);
 
         IEnumerable<AssignmentDTO> GetByFilters(AssignmentQuery dto);
@@ -21,8 +23,10 @@ namespace TeacherControl.Domain.Repositories
         int AddComment(int assignmentId, AssignmentCommentDTO dto);
         int UpdateComment(int assignmentId, int commentId, AssignmentCommentDTO dto);
         int RemoveAssignmentComment(int assignmentId, int commentId);
-        IEnumerable<AssignmentCommentDTO> GetAllAssignmentComments(int assignmentId, AssignmentCommentQuery Query);
         int DisableAssignmentComment(int assignmentId, int CommentId);
-        int UpdateUpvoteAssignmentComment(int assignmentId, int CommentId, int Upvote);
+        int DownvoteComment(int AssingmentId, int CommentId);
+        int UpvoteComment(int AssingmentId, int CommentId);
+        IEnumerable<AssignmentCommentDTO> GetAllAssignmentComments(int assignmentId, AssignmentCommentQuery Query);
+        AssignmentCommentDTO GetAssignmentCommentByCommentId(int assignmentId, int commentId);
     }
 }

@@ -10,8 +10,8 @@ namespace TeacherControl.DataEFCore
 {
     public class TCContext : DbContext
     {
-        protected DbContextOptions<TCContext> _Options { get; set; }
-        protected IAuthUserService _AuthUserService;
+        protected readonly DbContextOptions<TCContext> _Options;
+        protected readonly IAuthUserService _AuthUserService;
 
         //TODO: re-check the dbsets if follows the EF core conventions
         #region Assignment DB Sets
@@ -44,9 +44,11 @@ namespace TeacherControl.DataEFCore
         public virtual DbSet<CourseUserCredit> CourseUserCredits { get; set; }
         #endregion
 
-        public virtual DbSet<Group> Groups { get; set; }
-        public virtual DbSet<Status> Statuses { get; set; }
+        #region Users
         public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<UserInfo> UserInfos { get; set; }
+        public virtual DbSet<UserRole> UserRoles { get; set; }
+        #endregion 
 
         public TCContext(DbContextOptions<TCContext> options, IAuthUserService authUserService) : base(options)
         {

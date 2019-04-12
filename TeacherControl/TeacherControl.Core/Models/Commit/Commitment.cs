@@ -17,7 +17,7 @@ namespace TeacherControl.Core.Models
 
         public virtual ICollection<QuestionnaireCommitment> AssignmentCommitments { get; set; }
 
-        public int StatusId { get; set; }
+        public string Status { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
         public string CreatedBy { get; set; }

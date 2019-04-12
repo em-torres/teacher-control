@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using TeacherControl.API.Extensors;
 using TeacherControl.Common.Enums;
 using TeacherControl.Common.Extensors;
@@ -47,21 +48,13 @@ namespace TeacherControl.API.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddCourse([FromBody] JObject json)
+        public IActionResult AddCourse([FromBody] CourseDTO dto)
         {
-            if (json is null)
-            {
-                return BadRequest("Invalid Request Body");
-            }
-
-            CourseDTO dto = json.ToObject<CourseDTO>();
-
             return this.Created(() =>
             {
                 bool result = _CourseRepo.Add(dto).Equals((int)TransactionStatus.SUCCESS);
-                dto.Status = Core.Enums.Status.Active;
 
-                return dto.ToJson();
+                return result ? dto.ToJson() : new JObject();
             });
         }
 
@@ -73,12 +66,36 @@ namespace TeacherControl.API.Controllers
         }
 
         [HttpPut, Route("{courseId:int:min(1)}")]
-        public IActionResult UpdateCourse([FromRoute] int courseId, [FromBody] JObject json)
+        public IActionResult UpdateCourse([FromRoute] int courseId, [FromBody] CourseDTO dto)
         {
             int successTransactionValue = (int)TransactionStatus.SUCCESS;
-            CourseDTO dto = json.ToObject<CourseDTO>();
 
             return this.NoContent(() => _CourseRepo.Update(courseId, dto).Equals(successTransactionValue));
         }
+
+        [HttpPatch, Route("{courseId:int:min(1)}/assign-credits/{userId:int:min(1)}")]
+        public IActionResult AssignUserCredits([FromRoute] int courseId, [FromRoute] int userId, [FromBody] double credits)
+        {
+            int successTransactionValue = (int)TransactionStatus.SUCCESS;
+
+            return this.NoContent(() => _CourseRepo.AssignUserCredits(courseId, userId, credits).Equals(successTransactionValue));
+        }
+
+        [HttpPost, Route("{courseId:int:min(1)}/subscribe/{userId:int:min(1)}")]
+        public IActionResult SubscribeStudent([FromRoute] int courseId, [FromRoute] int userId)
+        {
+            int successTransactionValue = (int)TransactionStatus.SUCCESS;
+
+            return this.NoContent(() => _CourseRepo.SubscribeUser(courseId, userId).Equals(successTransactionValue));
+        }
+
+        [HttpPost, Route("{courseId:int:min(1)}/subscribe")]
+        public IActionResult SubscribeStudents([FromRoute] int courseId, [FromBody] IEnumerable<int> Users)
+        {
+            int successTransactionValue = (int)TransactionStatus.SUCCESS;
+
+            return this.NoContent(() => _CourseRepo.SubscribeUsers(courseId, Users).Equals(successTransactionValue));
+        }
+
     }
 }

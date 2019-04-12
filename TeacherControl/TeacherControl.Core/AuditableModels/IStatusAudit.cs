@@ -7,6 +7,6 @@ namespace TeacherControl.Core.AuditableModels
 {
     public interface IStatusAudit
     {
-        int StatusId { get; set; }
+        string Status { get; set; }
     }
 }

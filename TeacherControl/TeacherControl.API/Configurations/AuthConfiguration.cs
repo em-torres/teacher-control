@@ -3,11 +3,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TeacherControl.Common.Extensors;
 using TeacherControl.Domain.Services;
 using TeacherControl.Infraestructure.Services;
 
@@ -22,7 +19,7 @@ namespace TeacherControl.API.Configurations
             string ISSUER = configuration.GetSection("AppSettings:Issuer").Value;
 
             services
-                .AddTransient<IAuthUserService, DummyAuthUserService>()
+                .AddScoped<IAuthUserService, AuthUserService>()
                 .AddAuthentication(config =>
                 {
                     config.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -39,8 +36,7 @@ namespace TeacherControl.API.Configurations
                             //TODO logger here
 
                             var userService = contex.HttpContext.RequestServices.GetRequiredService<IAuthUserService>();
-                            userService.Username = contex.Principal.Claims.GetUsername();
-
+                            userService.Username = contex.Principal.Identity.Name;
                             //add claims here for the user here
 
                             return Task.CompletedTask;
@@ -67,7 +63,7 @@ namespace TeacherControl.API.Configurations
                         //ValidateAudience = true,
                         ValidateIssuer = false,
                         ValidateAudience = false,
-                        ClockSkew = TimeSpan.FromMinutes(5),
+                        ClockSkew = TimeSpan.FromMinutes(1),
                     };
 
                 });
@@ -75,14 +71,4 @@ namespace TeacherControl.API.Configurations
             return services;
         }
     }
-
-    //TODO: delete this
-    class DummyAuthUserService : IAuthUserService
-    {
-        protected string _Username;
-
-        //public string Username { get => _Username; set => _Username = value; }
-        public string Username { get => _Username ?? "TEST_USER"; set => _Username = value; }
-    }
-
 }

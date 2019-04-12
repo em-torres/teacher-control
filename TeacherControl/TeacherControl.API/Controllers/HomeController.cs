@@ -6,12 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace TeacherControl.API.Controllers
 {
-
+    [Route("api")]
     public class HomeController : Controller
     {
         public IActionResult Index()
         {
-            return Ok("The Api is Currently Running");
+            return Ok("The Api is Currently Running...");
         }
     }
 }
